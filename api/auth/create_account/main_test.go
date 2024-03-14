@@ -5,6 +5,7 @@ import (
 
 	"net/http"
 
+	errors "api.north-path.site/utils"
 	"github.com/aws/aws-lambda-go/events"
 )
 
@@ -38,7 +39,7 @@ import (
 		t.Errorf("Expected 400, got %d", result.StatusCode)
 	}
 
-	if result.Body != "JSON Parse Error" {
+	if result.Body != errors.JSONParseError {
 		t.Errorf("Expected JSON Parse Error, got %s", result.Body)
 	}
 

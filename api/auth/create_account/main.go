@@ -5,6 +5,7 @@ import (
 
 	"encoding/json"
 
+	errors "api.north-path.site/utils"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
@@ -22,7 +23,7 @@ func Handler(request events.APIGatewayV2HTTPRequest)(events.APIGatewayProxyRespo
 	if err!= nil {
 		return events.APIGatewayProxyResponse{
             StatusCode: http.StatusBadRequest,
-            Body:       "JSON Parse Error",
+            Body:       errors.JSONParseError,
         }, nil
 	}
 
