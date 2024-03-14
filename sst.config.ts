@@ -31,6 +31,7 @@ export default {
       const api = new Api(stack, "api", {
         routes: {
           "GET /": "./lambda/main.go",
+          "POST /auth/create_account": "./api/auth/create_account/main.go",
         },
         customDomain: isProd ? domain : undefined,
       });
