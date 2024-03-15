@@ -61,6 +61,10 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		}, nil
 	}
 
+	// check if the email is existed
+
+	// add record and send email
+
 	return events.APIGatewayProxyResponse{
 		Body:       "created",
 		StatusCode: http.StatusCreated,
