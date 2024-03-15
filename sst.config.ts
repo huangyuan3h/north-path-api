@@ -1,5 +1,6 @@
 import { SSTConfig } from "sst";
 import getApi from "./cdk/router";
+import { getTableConfig } from "./cdk/table";
 
 
 export default {
@@ -15,10 +16,16 @@ export default {
     });
     app.stack(function Stack({ stack }) {
 
-     const api = getApi(stack)
+      const {authTable} = getTableConfig(stack)
+
+      const api = getApi(stack)
+
+      api.attachPermissions([authTable]);
+
       stack.addOutputs({
         ApiEndpoint: api.url,
       });
     });
   },
 } satisfies SSTConfig;
+

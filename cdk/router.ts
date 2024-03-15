@@ -16,6 +16,11 @@ export default (stack:Stack)=>{
           };
 
     const api = new Api(stack, "api", {
+        cors: {
+            allowMethods: ["ANY"],
+            allowHeaders: ["Authorization"],
+            allowOrigins: ["https://www.north-path.site"],
+          },
         routes: {
           "GET /": "./api/health/main.go",
           "POST /auth/create_account": "./api/auth/create_account/main.go",
