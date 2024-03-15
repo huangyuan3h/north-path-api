@@ -54,17 +54,28 @@ func TestHandlerNotValidEmail(t *testing.T) {
 }
 
 func TestHandlerNotValidPassword(t *testing.T) {
-	input := events.APIGatewayV2HTTPRequest{
-		Body: "{\"email\":\"abc123@qq.com\", \"password\":\"error\"}",
-	}
 
-	result, _ := Handler(input)
+	// password length less than 6
+	//password no upcase
+	//password no lowcase
+	//password no number
 
-	if result.StatusCode != http.StatusBadRequest {
-		t.Errorf("Expected 400, got %d", result.StatusCode)
-	}
+	passwords := [4]string{"error", "password123", "PASSWORD123", "PASSWORD"}
 
-	if result.Body != errors.PasswordError {
-		t.Errorf("Expected %s, got %s", errors.PasswordError, result.Body)
+	for _, password := range passwords {
+
+		input := events.APIGatewayV2HTTPRequest{
+			Body: "{\"email\":\"abc123@qq.com\", \"password\":\"" + password + "\"}",
+		}
+
+		result, _ := Handler(input)
+
+		if result.StatusCode != http.StatusBadRequest {
+			t.Errorf("Expected 400, got %d", result.StatusCode)
+		}
+
+		if result.Body != errors.PasswordError {
+			t.Errorf("Expected %s, got %s", errors.PasswordError, result.Body)
+		}
 	}
 }
