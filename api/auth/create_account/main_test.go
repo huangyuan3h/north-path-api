@@ -5,16 +5,13 @@ import (
 
 	"net/http"
 
-	errors "api.north-path.site/utils"
+	errors "api.north-path.site/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
 )
 
-  func TestHandlerSanity(t *testing.T) {
+func TestHandlerSanity(t *testing.T) {
 	input := events.APIGatewayV2HTTPRequest{
-		Headers: map[string]string{
-            "Content-Type": "application/json",
-        },
-        Body: "{\"name\":\"John\"}",
+		Body: "{\"email\":\"abc123@qq.com\", \"password\":\"Password123\"}",
 	}
 
 	result, _ := Handler(input)
@@ -22,15 +19,11 @@ import (
 	if result.StatusCode != http.StatusCreated {
 		t.Errorf("Expected 201, got %d", result.StatusCode)
 	}
+}
 
-  }
-
-  func TestHandlerJSONParse(t *testing.T) {
+func TestHandlerJSONParse(t *testing.T) {
 	input := events.APIGatewayV2HTTPRequest{
-		Headers: map[string]string{
-            "Content-Type": "application/json",
-        },
-        Body: "not a json",
+		Body: "not a json",
 	}
 
 	result, _ := Handler(input)
@@ -40,7 +33,38 @@ import (
 	}
 
 	if result.Body != errors.JSONParseError {
-		t.Errorf("Expected JSON Parse Error, got %s", result.Body)
+		t.Errorf("Expected %s, got %s", errors.JSONParseError, result.Body)
+	}
+}
+
+func TestHandlerNotValidEmail(t *testing.T) {
+	input := events.APIGatewayV2HTTPRequest{
+		Body: "{\"email\":\"not a email\", \"password\":\"P@ssw0rd!\"}",
 	}
 
-  }
+	result, _ := Handler(input)
+
+	if result.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected 400, got %d", result.StatusCode)
+	}
+
+	if result.Body != errors.NotValidEmail {
+		t.Errorf("Expected %s, got %s", errors.NotValidEmail, result.Body)
+	}
+}
+
+func TestHandlerNotValidPassword(t *testing.T) {
+	input := events.APIGatewayV2HTTPRequest{
+		Body: "{\"email\":\"abc123@qq.com\", \"password\":\"error\"}",
+	}
+
+	result, _ := Handler(input)
+
+	if result.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected 400, got %d", result.StatusCode)
+	}
+
+	if result.Body != errors.PasswordError {
+		t.Errorf("Expected %s, got %s", errors.PasswordError, result.Body)
+	}
+}

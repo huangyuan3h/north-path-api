@@ -4,27 +4,61 @@ import (
 	"net/http"
 
 	"encoding/json"
+	"regexp"
 
-	errors "api.north-path.site/utils"
+	"api.north-path.site/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/go-playground/validator/v10"
 )
 
 type CreateAccountBody struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6,max=20"`
 }
 
-func Handler(request events.APIGatewayV2HTTPRequest)(events.APIGatewayProxyResponse, error) {
+func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
-	var user CreateAccountBody
-  	err := json.Unmarshal([]byte(request.Body), &user)
+	var acocuntReq CreateAccountBody
+	err := json.Unmarshal([]byte(request.Body), &acocuntReq)
 
-	if err!= nil {
+	if err != nil {
 		return events.APIGatewayProxyResponse{
-            StatusCode: http.StatusBadRequest,
-            Body:       errors.JSONParseError,
-        }, nil
+			StatusCode: http.StatusBadRequest,
+			Body:       errors.JSONParseError,
+		}, nil
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	errStruct := validate.Struct(acocuntReq)
+
+	if errStruct != nil {
+		firstErr := errStruct.(validator.ValidationErrors)[0]
+		var body string
+		switch t := firstErr.StructField(); t {
+		case "Email":
+			body = errors.NotValidEmail
+		case "Password":
+			body = errors.PasswordError
+		}
+
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       body,
+		}, nil
+
+	}
+
+	// detail validation
+	var regContainsLow = regexp.MustCompile("[a-z]+")
+	var regContainsUpper = regexp.MustCompile("[A-Z]+")
+	var regContainsNumber = regexp.MustCompile("[0-9]+")
+
+	if !regContainsLow.MatchString(acocuntReq.Password) || !regContainsUpper.MatchString(acocuntReq.Password) || !regContainsNumber.MatchString(acocuntReq.Password) {
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       errors.PasswordError,
+		}, nil
 	}
 
 	return events.APIGatewayProxyResponse{
