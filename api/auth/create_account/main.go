@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"regexp"
 
+	"api.north-path.site/auth/db"
+	"api.north-path.site/auth/db/auth"
 	"api.north-path.site/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -61,9 +63,21 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		}, nil
 	}
 
+	// init db
+	svc := db.GetClient()
+
 	// check if the email is existed
 
 	// add record and send email
+
+	err = auth.CreateAccount(svc, &acocuntReq.Email, &acocuntReq.Password)
+
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusBadRequest,
+			Body:       errors.InsertDBError,
+		}, nil
+	}
 
 	return events.APIGatewayProxyResponse{
 		Body:       "created",

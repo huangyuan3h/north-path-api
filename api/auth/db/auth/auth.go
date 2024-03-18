@@ -1,11 +1,12 @@
 package auth
 
 import (
-	"os"
-
+	"api.north-path.site/auth/db"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
+
+const tableName = "auth"
 
 type Auth struct {
 	Email    string `json:"email"`
@@ -13,24 +14,15 @@ type Auth struct {
 	Status   string `json:"status"`
 }
 
-const tableName = "auth"
-
-func getTableName() string {
-	var stage string
-	if os.Getenv("SST_STAGE") != "" {
-		stage = os.Getenv("SST_STAGE")
-	} else {
-		stage = "dev"
-	}
-
-	return stage + "-north-path-api-" + tableName
+type AuthMethod interface {
+	CreateAccount(email, password string) error
 }
 
-func CreateAccount(svc *dynamodb.DynamoDB, email, password *string) error {
+func (a Auth) CreateAccount(email, password *string) error {
 
-	tName := getTableName()
+	client := db.New(tableName)
 
-	p := &tName
+	p := client.TableName
 
 	auth := Auth{
 		Email:    *email,
@@ -41,7 +33,7 @@ func CreateAccount(svc *dynamodb.DynamoDB, email, password *string) error {
 	if err != nil {
 		return err
 	}
-	_, err = svc.PutItem(&dynamodb.PutItemInput{
+	_, err = client.Client.PutItem(&dynamodb.PutItemInput{
 		Item:      av,
 		TableName: p,
 	})
