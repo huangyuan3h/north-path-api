@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 const STAGE_KEY = "SST_STAGE"
@@ -13,6 +14,27 @@ const PROJECT_STR = "-north-path-api-"
 type Client struct {
 	TableName *string
 	Client    *dynamodb.DynamoDB
+}
+
+type ClientBaseMethod interface {
+	Create(in interface{}) error
+}
+
+func (c Client) Create(in interface{}) error {
+	av, err := dynamodbattribute.MarshalMap(in)
+	if err != nil {
+		return err
+	}
+	_, err = c.Client.PutItem(&dynamodb.PutItemInput{
+		Item:      av,
+		TableName: c.TableName,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func New(tableName string) Client {

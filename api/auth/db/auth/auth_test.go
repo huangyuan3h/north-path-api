@@ -6,9 +6,9 @@ import (
 
 func TestCreateAccount(t *testing.T) {
 
-	auth := Auth{}
+	auth := New()
 
-	email := "email@example.com"
+	email := "email1@example.com"
 	password := "password"
 
 	err := auth.CreateAccount(&email, &password)

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"regexp"
 
-	"api.north-path.site/auth/db"
 	"api.north-path.site/auth/db/auth"
 	"api.north-path.site/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
@@ -63,14 +62,13 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		}, nil
 	}
 
-	// init db
-	svc := db.GetClient()
+	auth := auth.New()
 
 	// check if the email is existed
 
 	// add record and send email
 
-	err = auth.CreateAccount(svc, &acocuntReq.Email, &acocuntReq.Password)
+	err = auth.CreateAccount(&acocuntReq.Email, &acocuntReq.Password)
 
 	if err != nil {
 		return events.APIGatewayProxyResponse{
