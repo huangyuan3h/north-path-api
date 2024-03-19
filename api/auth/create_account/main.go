@@ -24,10 +24,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	err := json.Unmarshal([]byte(request.Body), &acocuntReq)
 
 	if err != nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusBadRequest,
-			Body:       errors.JSONParseError,
-		}, nil
+		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
@@ -35,19 +32,15 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	if errStruct != nil {
 		firstErr := errStruct.(validator.ValidationErrors)[0]
-		var body string
+		var errMessage string
 		switch t := firstErr.StructField(); t {
 		case "Email":
-			body = errors.NotValidEmail
+			errMessage = errors.NotValidEmail
 		case "Password":
-			body = errors.PasswordError
+			errMessage = errors.PasswordError
 		}
 
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusBadRequest,
-			Body:       body,
-		}, nil
-
+		return errors.New(errMessage, http.StatusBadRequest).GatewayResponse()
 	}
 
 	// detail validation
@@ -56,25 +49,17 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	var regContainsNumber = regexp.MustCompile("[0-9]+")
 
 	if !regContainsLow.MatchString(acocuntReq.Password) || !regContainsUpper.MatchString(acocuntReq.Password) || !regContainsNumber.MatchString(acocuntReq.Password) {
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusBadRequest,
-			Body:       errors.PasswordError,
-		}, nil
+		return errors.New(errors.PasswordError, http.StatusBadRequest).GatewayResponse()
 	}
 
 	auth := auth.New()
-
-	// check if the email is existed
 
 	// add record and send email
 
 	err = auth.CreateAccount(&acocuntReq.Email, &acocuntReq.Password)
 
 	if err != nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusBadRequest,
-			Body:       errors.InsertDBError,
-		}, nil
+		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
 	}
 
 	return events.APIGatewayProxyResponse{

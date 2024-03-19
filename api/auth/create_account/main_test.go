@@ -3,11 +3,20 @@ package main
 import (
 	"testing"
 
+	"encoding/json"
 	"net/http"
 
 	errors "api.north-path.site/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/google/go-cmp/cmp"
 )
+
+func StringToErrorMessage(body string) (errors.HttpError, error) {
+
+	var httpError errors.HttpError
+	err := json.Unmarshal([]byte(body), &httpError)
+	return httpError, err
+}
 
 func TestHandlerSanity(t *testing.T) {
 	input := events.APIGatewayV2HTTPRequest{
@@ -28,12 +37,18 @@ func TestHandlerJSONParse(t *testing.T) {
 
 	result, _ := Handler(input)
 
+	httpError, err := StringToErrorMessage(result.Body)
+
+	if err != nil {
+		t.Errorf("response is not a JSON %d", err)
+	}
+
 	if result.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected 400, got %d", result.StatusCode)
 	}
 
-	if result.Body != errors.JSONParseError {
-		t.Errorf("Expected %s, got %s", errors.JSONParseError, result.Body)
+	if !cmp.Equal(httpError.Message, errors.JSONParseError) {
+		t.Errorf("Expected %s, got %s", errors.JSONParseError, httpError.Message)
 	}
 }
 
@@ -44,12 +59,18 @@ func TestHandlerNotValidEmail(t *testing.T) {
 
 	result, _ := Handler(input)
 
+	httpError, err := StringToErrorMessage(result.Body)
+
+	if err != nil {
+		t.Errorf("response is not a JSON %d", err)
+	}
+
 	if result.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected 400, got %d", result.StatusCode)
 	}
 
-	if result.Body != errors.NotValidEmail {
-		t.Errorf("Expected %s, got %s", errors.NotValidEmail, result.Body)
+	if !cmp.Equal(httpError.Message, errors.NotValidEmail) {
+		t.Errorf("Expected %s, got %s", errors.NotValidEmail, httpError.Message)
 	}
 }
 
@@ -70,12 +91,18 @@ func TestHandlerNotValidPassword(t *testing.T) {
 
 		result, _ := Handler(input)
 
+		httpError, err := StringToErrorMessage(result.Body)
+
+		if err != nil {
+			t.Errorf("response is not a JSON %d", err)
+		}
+
 		if result.StatusCode != http.StatusBadRequest {
 			t.Errorf("Expected 400, got %d", result.StatusCode)
 		}
 
-		if result.Body != errors.PasswordError {
-			t.Errorf("Expected %s, got %s", errors.PasswordError, result.Body)
+		if !cmp.Equal(httpError.Message, errors.PasswordError) {
+			t.Errorf("Expected %s, got %s", errors.PasswordError, httpError.Message)
 		}
 	}
 }
