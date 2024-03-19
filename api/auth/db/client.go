@@ -1,8 +1,10 @@
 package db
 
 import (
+	"errors"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -18,6 +20,7 @@ type Client struct {
 
 type ClientBaseMethod interface {
 	Create(in interface{}) error
+	FindById(keyName, id string) (map[string]*dynamodb.AttributeValue, error)
 }
 
 func (c Client) Create(in interface{}) error {
@@ -35,6 +38,34 @@ func (c Client) Create(in interface{}) error {
 	}
 
 	return nil
+}
+
+func (c Client) FindById(keyName, id string) (map[string]*dynamodb.AttributeValue, error) {
+	if keyName == "" {
+		return nil, errors.New("keyname is required")
+	}
+	key := map[string]*dynamodb.AttributeValue{
+		keyName: {
+			S: aws.String(id),
+		},
+	}
+
+	return GetItem(c.Client, *c.TableName, key)
+}
+
+func GetItem(svc *dynamodb.DynamoDB, tableName string, key map[string]*dynamodb.AttributeValue) (map[string]*dynamodb.AttributeValue, error) {
+
+	input := &dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key:       key,
+	}
+
+	result, err := svc.GetItem(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Item, nil
 }
 
 func New(tableName string) Client {

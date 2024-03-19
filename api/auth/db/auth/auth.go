@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"errors"
+
 	"api.north-path.site/auth/db"
 )
 
@@ -24,6 +26,16 @@ func New() Auth {
 }
 
 func (a Auth) CreateAccount(email, password *string) error {
+
+	item, err := a.client.FindById("email", *email)
+
+	if err != nil {
+		return err
+	}
+
+	if item != nil {
+		return errors.New("the account already exists")
+	}
 
 	auth := Auth{
 		Email:    *email,
