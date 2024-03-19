@@ -1,0 +1,23 @@
+package http
+
+import (
+	"encoding/json"
+
+	"net/http"
+
+	"api.north-path.site/utils/errors"
+	"github.com/aws/aws-lambda-go/events"
+)
+
+func Ok(obj any, code int) (events.APIGatewayProxyResponse, error) {
+
+	jsonData, err := json.Marshal(obj)
+	if err != nil {
+		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
+	}
+
+	return events.APIGatewayProxyResponse{
+		Body:       string(jsonData),
+		StatusCode: code,
+	}, nil
+}
