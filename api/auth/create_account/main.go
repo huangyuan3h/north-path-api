@@ -8,6 +8,7 @@ import (
 
 	"api.north-path.site/auth/db/auth"
 	"api.north-path.site/utils/errors"
+	awsHttp "api.north-path.site/utils/http"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-playground/validator/v10"
@@ -16,6 +17,10 @@ import (
 type CreateAccountBody struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=6,max=20"`
+}
+
+type CreateAccountResponse struct {
+	Message string `json:"message"`
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -62,10 +67,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
 	}
 
-	return events.APIGatewayProxyResponse{
-		Body:       "created",
-		StatusCode: http.StatusCreated,
-	}, nil
+	return awsHttp.Ok(CreateAccountResponse{Message: "created"}, http.StatusCreated)
 }
 
 func main() {
