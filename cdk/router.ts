@@ -23,7 +23,13 @@ export default (stack:Stack)=>{
           },
         routes: {
           "GET /": "./api/health/main.go",
-          "POST /auth/create_account": "./api/auth/create_account/main.go",
+          "POST /auth/create_account": {
+            function: {
+              handler:"./api/auth/create_account/main.go",
+              timeout: 10,
+              environment: { AUTH_SECRET: process.env.AUTH_SECRET ?? ""  },
+            }
+          },
         },
         customDomain: isProd ? domain : undefined,
       });

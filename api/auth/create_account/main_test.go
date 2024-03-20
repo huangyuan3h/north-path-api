@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"os"
+
 	errors "api.north-path.site/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/go-cmp/cmp"
@@ -19,6 +21,7 @@ func StringToErrorMessage(body string) (errors.HttpError, error) {
 }
 
 func TestHandlerSanity(t *testing.T) {
+	os.Setenv("AUTH_SECRET", "GLbR3zUjXPbSKLwsSqNDTG3ODNkZYDdF")
 	input := events.APIGatewayV2HTTPRequest{
 		Body: "{\"email\":\"abc123@qq.com\", \"password\":\"Password123\"}",
 	}

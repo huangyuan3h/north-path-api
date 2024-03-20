@@ -10,7 +10,7 @@ const tableName = "auth"
 
 type Auth struct {
 	Email    string `json:"email"`
-	Password string `json:"password"`
+	Password []byte `json:"password"`
 	Status   string `json:"status"`
 	client   *db.Client
 }
@@ -37,9 +37,15 @@ func (a Auth) CreateAccount(email, password *string) error {
 		return errors.New("the account already exists")
 	}
 
+	encryptedPassword, err := encrypt([]byte(*password))
+
+	if err != nil {
+		return err
+	}
+
 	auth := Auth{
 		Email:    *email,
-		Password: *password,
+		Password: encryptedPassword,
 		Status:   "actived",
 	}
 

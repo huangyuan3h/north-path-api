@@ -45,3 +45,5 @@ _.so
 
 go.work
 
+.env
+.env.*
