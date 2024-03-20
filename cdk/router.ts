@@ -30,6 +30,13 @@ export default (stack:Stack)=>{
               environment: { AUTH_SECRET: process.env.AUTH_SECRET ?? ""  },
             }
           },
+          "POST /auth/login": {
+            function: {
+              handler:"./api/auth/login/main.go",
+              timeout: 10,
+              environment: { AUTH_SECRET: process.env.AUTH_SECRET ?? ""  },
+            }
+          },
         },
         customDomain: isProd ? domain : undefined,
       });

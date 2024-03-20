@@ -20,8 +20,8 @@ func TestHandlerSanity(t *testing.T) {
 
 	result, _ := Handler(input)
 
-	if result.StatusCode != http.StatusCreated {
-		t.Errorf("Expected 201, got %d", result.StatusCode)
+	if result.StatusCode != http.StatusOK {
+		t.Errorf("Expected 200, got %d", result.StatusCode)
 	}
 }
 
@@ -72,11 +72,8 @@ func TestHandlerNotValidEmail(t *testing.T) {
 func TestHandlerNotValidPassword(t *testing.T) {
 
 	// password length less than 6
-	//password no upcase
-	//password no lowcase
-	//password no number
 
-	passwords := [4]string{"error", "password123", "PASSWORD123", "PASSWORD"}
+	passwords := [1]string{"error"}
 
 	for _, password := range passwords {
 

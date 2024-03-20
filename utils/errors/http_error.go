@@ -39,3 +39,10 @@ func (e HttpError) GatewayResponse() (events.APIGatewayProxyResponse, error) {
 		Body:       e.ToString(),
 	}, nil
 }
+
+func StringToErrorMessage(body string) (HttpError, error) {
+
+	var httpError HttpError
+	err := json.Unmarshal([]byte(body), &httpError)
+	return httpError, err
+}
