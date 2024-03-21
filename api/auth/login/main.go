@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"api.north-path.site/auth/db/auth"
 	"api.north-path.site/utils/errors"
 	awsHttp "api.north-path.site/utils/http"
+	"api.north-path.site/utils/jwt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-playground/validator/v10"
@@ -17,7 +19,7 @@ type LoginBody struct {
 }
 
 type LoginResponse struct {
-	Message string `json:"message"`
+	Authorization string `json:"Authorization"`
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -46,17 +48,28 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(errMessage, http.StatusBadRequest).GatewayResponse()
 	}
 
-	// auth := auth.New()
+	auth := auth.New()
 
 	// add record and send email
 
-	// err = auth.CreateAccount(&loginReq.Email, &loginReq.Password)
+	err = auth.VerifyLogin(&loginReq.Email, &loginReq.Password)
 
-	// if err != nil {
-	// 	return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
-	// }
+	if err != nil {
+		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
+	}
 
-	return awsHttp.Ok(LoginResponse{Message: "created"}, http.StatusOK)
+	// generate jwt token
+
+	jwtObj := map[string]interface{}{
+		"email": loginReq.Email,
+	}
+	jwt_token, err := jwt.CreateToken(jwtObj)
+
+	if err != nil {
+		return errors.New(err.Error(), http.StatusInternalServerError).GatewayResponse()
+	}
+
+	return awsHttp.Ok(LoginResponse{Authorization: jwt_token}, http.StatusOK)
 }
 
 func main() {
