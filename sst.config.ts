@@ -14,11 +14,12 @@ export default {
     app.setDefaultFunctionProps({
       runtime: "go",
     });
+    
     app.stack(function Stack({ stack }) {
 
-      const {authTable} = getTableConfig(stack)
+      const {authTable} = getTableConfig(stack);
 
-      const api = getApi(stack)
+      const api = getApi(stack);
 
       api.attachPermissions([authTable]);
 

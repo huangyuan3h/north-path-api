@@ -3,8 +3,15 @@ package errors
 // custom error message
 const (
 	JSONParseError = "JSON Parse Error"
-	NotValidEmail  = "Not Valid Email"
-	PasswordError  = "Password Error"
-	InternalError  = "Internal Error"
-	InsertDBError  = "Insert DB Error"
+	// Create account
+	NotValidEmail        = "not valid email"
+	PasswordError        = "password error"
+	InternalError        = "internal error"
+	InsertDBError        = "insert DB error"
+	AccountAlreadyExists = "account already exists"
+
+	// Login error message
+	AccountNotExist        = "account not exist"
+	PasswordDecryptedError = "password decrypt error"
+	PasswordIncorrect      = "password incorrect"
 )
