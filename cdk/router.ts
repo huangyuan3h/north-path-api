@@ -40,6 +40,13 @@ export default (stack:Stack)=>{
               },
             }
           },
+          // rcic part
+          "POST /rcic/search": {
+            function: {
+              handler:"./api/rcic/search/main.go",
+              timeout: 10,
+            }
+          },
         },
         customDomain: isProd ? domain : undefined,
       });
