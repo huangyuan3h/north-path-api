@@ -29,7 +29,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	data := url.Values{
 		"lang":                     {"en"},
-		"search_iccrc_number":      {"R534829"},
+		"search_iccrc_number":      {rcicReq.RCIC},
 		"start":                    {"0"},
 		"search_last_name":         {""},
 		"search_first_name":        {""},
@@ -50,8 +50,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	req, err := http.NewRequest("POST", target_url, strings.NewReader(encoded))
 
 	if err != nil {
-		// 创建 HTTP 请求失败
-		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
+		return errors.New(errors.CreateHTTPRequestFailed, http.StatusBadRequest).GatewayResponse()
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "*/*")
@@ -71,16 +70,13 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		// 发送请求失败
-		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
+		return errors.New(errors.RequestRemoteServerFailed, http.StatusBadRequest).GatewayResponse()
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-
-		// 读取响应结果失败
-		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
+		return errors.New(errors.ReadResponseBodyFailed, http.StatusBadRequest).GatewayResponse()
 	}
 
 	return events.APIGatewayProxyResponse{

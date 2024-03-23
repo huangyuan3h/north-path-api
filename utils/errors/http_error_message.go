@@ -14,4 +14,9 @@ const (
 	AccountNotExist        = "account not exist"
 	PasswordDecryptedError = "password decrypt error"
 	PasswordIncorrect      = "password incorrect"
+
+	// rcic error message
+	CreateHTTPRequestFailed   = "create HTTP request failed"
+	RequestRemoteServerFailed = "request remote server failed"
+	ReadResponseBodyFailed    = "read response body failed"
 )
