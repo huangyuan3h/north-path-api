@@ -28,7 +28,6 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	err := json.Unmarshal([]byte(request.Body), &loginReq)
 
 	if err != nil {
-
 		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
 	}
 
