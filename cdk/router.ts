@@ -1,7 +1,7 @@
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { Api, Stack } from "sst/constructs";
 const certArn =
-  "arn:aws:acm:ap-southeast-1:319653899185:certificate/e09b910f-b3b6-47d3-a50c-473ae799d532";
+  "arn:aws:acm:ap-southeast-1:319653899185:certificate/85267517-ebb2-42d2-83f9-22efbadd5c8f";
 
 export default (stack:Stack)=>{
     const isProd = stack.stage === "prod";
