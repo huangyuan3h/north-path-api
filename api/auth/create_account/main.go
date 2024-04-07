@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"api.north-path.site/auth/db/auth"
+	user "api.north-path.site/user/db"
 	"api.north-path.site/utils/errors"
 	awsHttp "api.north-path.site/utils/http"
 	"github.com/aws/aws-lambda-go/events"
@@ -58,11 +59,17 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	}
 
 	auth := auth.New()
+	user := user.New()
 
 	// add record and send email
 
 	err = auth.CreateAccount(&acocuntReq.Email, &acocuntReq.Password)
 
+	if err != nil {
+		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
+	}
+
+	err = user.CreateNew(&acocuntReq.Email)
 	if err != nil {
 		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
 	}

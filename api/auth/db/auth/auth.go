@@ -3,7 +3,8 @@ package auth
 import (
 	"errors"
 
-	"api.north-path.site/auth/db"
+	user "api.north-path.site/user/db"
+	db "api.north-path.site/utils/dynamodb"
 	errs "api.north-path.site/utils/errors"
 )
 
@@ -50,6 +51,14 @@ func (a Auth) CreateAccount(email, password *string) error {
 		Password: encryptedPassword,
 		Status:   "actived",
 	}
+
+	// create an empty user
+
+	user := &user.User{
+		Email: *email,
+	}
+
+	a.client.Create(user)
 
 	return a.client.Create(auth)
 }
