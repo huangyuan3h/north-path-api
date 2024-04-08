@@ -11,6 +11,17 @@ export const getTableConfig = (stack: Stack) =>{
         primaryIndex: { partitionKey: "email" },
       });
 
+      const userTable = new Table(stack, "user", {
+        fields: {
+          email: "string",
+          avatar: "string",
+          userName: "string",
+          bio: "string"
+        },
+        primaryIndex: { partitionKey: "email" },
+      });
 
-      return {authTable}
+
+
+      return {authTable, userTable}
 }

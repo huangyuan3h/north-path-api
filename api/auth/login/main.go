@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"api.north-path.site/auth/db/auth"
+	user "api.north-path.site/user/db"
 	"api.north-path.site/utils/errors"
 	awsHttp "api.north-path.site/utils/http"
 	"api.north-path.site/utils/jwt"
@@ -59,8 +60,16 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	// generate jwt token
 
+	user := user.New()
+
+	u, err := user.FindByEmail(&loginReq.Email)
+	if err != nil {
+		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
+	}
 	jwtObj := map[string]interface{}{
-		"email": loginReq.Email,
+		"email":     loginReq.Email,
+		"avatar":    u.Avatar,
+		"usernames": u.UserName,
 	}
 	jwt_token, err := jwt.CreateToken(jwtObj)
 

@@ -3,7 +3,7 @@ package auth
 import (
 	"errors"
 
-	"api.north-path.site/auth/db"
+	db "api.north-path.site/utils/dynamodb"
 	errs "api.north-path.site/utils/errors"
 )
 

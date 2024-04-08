@@ -1,20 +1,8 @@
-import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { Api, Stack } from "sst/constructs";
-const certArn =
-  'arn:aws:acm:us-east-1:319653899185:certificate/bb667839-82b3-4e9a-8de5-372516089971';
+
 
 export default (stack:Stack)=>{
-    const isProd = stack.stage === "prod";
-
-          // define domain
-          const domain = {
-            domainName: "api.north-path.site",
-            isExternalDomain: true,
-            cdk: {
-              certificate: Certificate.fromCertificateArn(stack, "MyCert", certArn),
-            },
-          };
-
+   
     const api = new Api(stack, "api", {
         cors: {
             allowOrigins: ["https://www.north-path.site","http://localhost:3000"],
@@ -47,7 +35,6 @@ export default (stack:Stack)=>{
             }
           },
         },
-        customDomain: isProd ? domain : undefined,
       });
       return api;
 }
