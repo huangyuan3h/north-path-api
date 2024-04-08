@@ -16,6 +16,7 @@ type User struct {
 
 type UserMethod interface {
 	CreateNew(email *string) error
+	FindByEmail(email *string) (*User, error)
 }
 
 func New() UserMethod {
@@ -24,11 +25,28 @@ func New() UserMethod {
 	return User{client: &client}
 }
 
-func (a User) CreateNew(email *string) error {
+func (u User) CreateNew(email *string) error {
 
 	user := &User{
-		Email: *email,
+		Email:    *email,
+		Avatar:   *email,
+		UserName: *email,
+		Bio:      *email,
 	}
 
-	return a.client.Create(user)
+	return u.client.Create(user)
+}
+
+func (u User) FindByEmail(email *string) (*User, error) {
+
+	res, err := u.client.FindById("email", *email)
+
+	if err != nil {
+		return nil, err
+	}
+
+	u.Avatar = *res["avatar"].S
+	u.UserName = *res["userName"].S
+	u.Bio = *res["bio"].S
+	return &u, nil
 }

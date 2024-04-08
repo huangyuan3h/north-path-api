@@ -16,7 +16,7 @@ export const getTableConfig = (stack: Stack) =>{
           email: "string",
           avatar: "string",
           userName: "string",
-          bio:"string"
+          bio: "string"
         },
         primaryIndex: { partitionKey: "email" },
       });
