@@ -67,9 +67,9 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 	}
 	jwtObj := map[string]interface{}{
-		"email":     loginReq.Email,
-		"avatar":    u.Avatar,
-		"usernames": u.UserName,
+		"email":    loginReq.Email,
+		"avatar":   u.Avatar,
+		"userName": u.UserName,
 	}
 	jwt_token, err := jwt.CreateToken(jwtObj)
 
