@@ -1,6 +1,8 @@
 package db
 
 import (
+	"strings"
+
 	db "api.north-path.site/utils/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
@@ -29,7 +31,8 @@ func New() UserMethod {
 func (u User) CreateNew(email *string) error {
 
 	user := &User{
-		Email: *email,
+		Email:    *email,
+		UserName: getEmailUsername(*email),
 	}
 
 	return u.client.Create(user)
@@ -81,4 +84,15 @@ func assignStringAttribute(res map[string]*dynamodb.AttributeValue, key string, 
 		*target = *res[key].S
 	}
 	return nil
+}
+
+func getEmailUsername(email string) string {
+	atIndex := strings.Index(email, "@")
+	if atIndex == -1 {
+		// "@" not found in the email
+		return ""
+	}
+
+	username := email[:atIndex]
+	return username
 }
