@@ -17,11 +17,11 @@ export default {
     
     app.stack(function Stack({ stack }) {
 
-      const {authTable, userTable} = getTableConfig(stack);
+      const {authTable, userTable, postTable} = getTableConfig(stack);
 
       const api = getApi(stack);
 
-      api.attachPermissions([authTable, userTable]);
+      api.attachPermissions([authTable, userTable, postTable]);
 
       stack.addOutputs({
         ApiEndpoint: api.url,
