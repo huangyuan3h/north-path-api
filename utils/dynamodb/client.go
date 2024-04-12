@@ -19,11 +19,12 @@ type Client struct {
 }
 
 type ClientBaseMethod interface {
-	Create(in interface{}) error
+	CreateOrUpdate(in interface{}) error
 	FindById(keyName, id string) (map[string]*dynamodb.AttributeValue, error)
+	DeleteById(keyName, id string) error
 }
 
-func (c Client) Create(in interface{}) error {
+func (c Client) CreateOrUpdate(in interface{}) error {
 	av, err := dynamodbattribute.MarshalMap(in)
 	if err != nil {
 		return err

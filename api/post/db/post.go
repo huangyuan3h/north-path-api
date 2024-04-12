@@ -48,7 +48,7 @@ func (p Post) CreateNew(email, subject, content *string, images, categories *[]s
 		UpdatedDate: time.Now().Format(time.RFC3339),
 	}
 
-	return p.client.Create(post)
+	return p.client.CreateOrUpdate(post)
 }
 
 func (p Post) DeleteById(id string) error {
