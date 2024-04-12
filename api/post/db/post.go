@@ -18,11 +18,13 @@ type Post struct {
 	Categories  []string `json:"categories"`
 	Images      []string `json:"images"`
 	CreatedDate string   `json:"createdDate"`
+	UpdatedDate string   `json:"updatedDate"`
 	client      *db.Client
 }
 
 type PostMethod interface {
 	CreateNew(email, subject, content *string, images, categories *[]string) error
+	DeleteById(id string) error
 }
 
 func New() PostMethod {
@@ -43,7 +45,12 @@ func (p Post) CreateNew(email, subject, content *string, images, categories *[]s
 		Categories:  *categories,
 		Images:      *images,
 		CreatedDate: time.Now().Format(time.RFC3339),
+		UpdatedDate: time.Now().Format(time.RFC3339),
 	}
 
 	return p.client.Create(post)
+}
+
+func (p Post) DeleteById(id string) error {
+	return p.client.DeleteById("postId", id)
 }
