@@ -15,13 +15,14 @@ type Post struct {
 	Email       string   `json:"email"`
 	Subject     string   `json:"subject"`
 	Content     string   `json:"content"`
-	Category    []string `json:"category"`
+	Categories  []string `json:"categories"`
+	Images      []string `json:"images"`
 	CreatedDate string   `json:"createdDate"`
 	client      *db.Client
 }
 
 type PostMethod interface {
-	CreateNew(email, subject, content *string, category *[]string) error
+	CreateNew(email, subject, content *string, images, categories *[]string) error
 }
 
 func New() PostMethod {
@@ -30,7 +31,7 @@ func New() PostMethod {
 	return Post{client: &client}
 }
 
-func (p Post) CreateNew(email, subject, content *string, category *[]string) error {
+func (p Post) CreateNew(email, subject, content *string, images, categories *[]string) error {
 	t := time.Now()
 	entropy := ulid.Monotonic(rand.Reader, 0)
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
@@ -39,7 +40,8 @@ func (p Post) CreateNew(email, subject, content *string, category *[]string) err
 		Email:       *email,
 		Subject:     *subject,
 		Content:     *content,
-		Category:    *category,
+		Categories:  *categories,
+		Images:      *images,
 		CreatedDate: time.Now().Format(time.RFC3339),
 	}
 

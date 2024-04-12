@@ -12,8 +12,9 @@ func TestCreateNew(t *testing.T) {
 	subject := "subject1"
 	content := "content1"
 	category := []string{"category1"}
+	images := []string{"image1"}
 
-	err := user.CreateNew(&email, &subject, &content, &category)
+	err := user.CreateNew(&email, &subject, &content, &images, &category)
 
 	if err != nil {
 		t.Error(err)

@@ -28,6 +28,7 @@ export const getTableConfig = (stack: Stack) =>{
           subject: "string",
           category: "string",
           content: "string",
+          images: "string",
           createdDate: "number",
         },
         primaryIndex: { partitionKey: "postId" },
