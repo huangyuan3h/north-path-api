@@ -34,6 +34,13 @@ export default (stack:Stack)=>{
               timeout: 10,
             }
           },
+          "POST /post/create": {
+            function: {
+              handler:"./api/post/create/main.go",
+              timeout: 10,
+              
+            }
+          },
         },
       });
       return api;
