@@ -54,14 +54,14 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			errMessage = errors.NotValidImages
 		}
 
-		// save to db
-
-		// db_client := db.New()
-
-		// db_client.CreateNew()
-
 		return errors.New(errMessage, http.StatusBadRequest).GatewayResponse()
 	}
+
+	// save to db
+
+	// db_client := db.New()
+
+	// db_client.CreateNew()
 
 	return awsHttp.Ok(&CreatePostResponse{
 		Subject:    createPostReq.Subject,
