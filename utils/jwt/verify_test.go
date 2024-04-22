@@ -1,4 +1,4 @@
-package main
+package jwt
 
 import (
 	"testing"
@@ -22,7 +22,7 @@ func TestVerifyHeaderAuth(t *testing.T) {
 		Headers: *headers,
 	}
 
-	myclaim, err := VerifyAuth(input)
+	myclaim, err := VerifyRequest(input)
 
 	if err != nil {
 		t.Error("error verifying auth")
@@ -45,7 +45,7 @@ func TestVerifyCookieAuth(t *testing.T) {
 		Cookies: *cookies,
 	}
 
-	myclaim, err := VerifyAuth(input)
+	myclaim, err := VerifyRequest(input)
 
 	if err != nil {
 		t.Error("error verifying auth")

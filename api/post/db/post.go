@@ -23,7 +23,7 @@ type Post struct {
 }
 
 type PostMethod interface {
-	CreateNew(email, subject, content *string, images, categories *[]string) error
+	CreateNew(email, subject, content *string, images, categories *[]string) (Post, error)
 	DeleteById(id string) error
 }
 
@@ -33,7 +33,7 @@ func New() PostMethod {
 	return Post{client: &client}
 }
 
-func (p Post) CreateNew(email, subject, content *string, images, categories *[]string) error {
+func (p Post) CreateNew(email, subject, content *string, images, categories *[]string) (Post, error) {
 	t := time.Now()
 	entropy := ulid.Monotonic(rand.Reader, 0)
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
@@ -48,7 +48,7 @@ func (p Post) CreateNew(email, subject, content *string, images, categories *[]s
 		UpdatedDate: time.Now().Format(time.RFC3339),
 	}
 
-	return p.client.CreateOrUpdate(post)
+	return *post, p.client.CreateOrUpdate(post)
 }
 
 func (p Post) DeleteById(id string) error {

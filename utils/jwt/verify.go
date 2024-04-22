@@ -1,15 +1,14 @@
-package main
+package jwt
 
 import (
 	"strings"
 
 	"errors"
 
-	"api.north-path.site/utils/jwt"
 	"github.com/aws/aws-lambda-go/events"
 )
 
-func VerifyAuth(request events.APIGatewayV2HTTPRequest) (*jwt.MyClaims, error) {
+func VerifyRequest(request events.APIGatewayV2HTTPRequest) (*MyClaims, error) {
 
 	authStr := request.Headers["Authorization"]
 
@@ -30,7 +29,7 @@ func VerifyAuth(request events.APIGatewayV2HTTPRequest) (*jwt.MyClaims, error) {
 		return nil, errors.New("authorization is not found in request")
 	}
 
-	myClaims, err := jwt.VerifyToken(authStr)
+	myClaims, err := VerifyToken(authStr)
 
 	if err != nil {
 		return nil, err
