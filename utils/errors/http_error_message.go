@@ -19,4 +19,10 @@ const (
 	CreateHTTPRequestFailed   = "create HTTP request failed"
 	RequestRemoteServerFailed = "request remote server failed"
 	ReadResponseBodyFailed    = "read response body failed"
+
+	// post create message
+	NotValidSubject    = "not valid subject"
+	NotValidContent    = "not valid content"
+	NotValidCategories = "not valid categories"
+	NotValidImages     = "not valid images"
 )

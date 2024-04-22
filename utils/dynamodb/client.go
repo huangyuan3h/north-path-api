@@ -19,11 +19,12 @@ type Client struct {
 }
 
 type ClientBaseMethod interface {
-	Create(in interface{}) error
+	CreateOrUpdate(in interface{}) error
 	FindById(keyName, id string) (map[string]*dynamodb.AttributeValue, error)
+	DeleteById(keyName, id string) error
 }
 
-func (c Client) Create(in interface{}) error {
+func (c Client) CreateOrUpdate(in interface{}) error {
 	av, err := dynamodbattribute.MarshalMap(in)
 	if err != nil {
 		return err
@@ -53,6 +54,19 @@ func (c Client) FindById(keyName, id string) (map[string]*dynamodb.AttributeValu
 	return GetItem(c.Client, *c.TableName, key)
 }
 
+func (c Client) DeleteById(keyName, id string) error {
+	if keyName == "" {
+		return errors.New("keyname is required")
+	}
+	key := map[string]*dynamodb.AttributeValue{
+		keyName: {
+			S: aws.String(id),
+		},
+	}
+
+	return DeleteItem(c.Client, *c.TableName, key)
+}
+
 func GetItem(svc *dynamodb.DynamoDB, tableName string, key map[string]*dynamodb.AttributeValue) (map[string]*dynamodb.AttributeValue, error) {
 
 	input := &dynamodb.GetItemInput{
@@ -66,6 +80,21 @@ func GetItem(svc *dynamodb.DynamoDB, tableName string, key map[string]*dynamodb.
 	}
 
 	return result.Item, nil
+}
+
+func DeleteItem(svc *dynamodb.DynamoDB, tableName string, key map[string]*dynamodb.AttributeValue) error {
+
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(tableName),
+		Key:       key,
+	}
+
+	_, err := svc.DeleteItem(input)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func New(tableName string) Client {

@@ -35,7 +35,7 @@ func (u User) CreateNew(email *string) error {
 		UserName: getEmailUsername(*email),
 	}
 
-	return u.client.Create(user)
+	return u.client.CreateOrUpdate(user)
 }
 
 func (u User) FindByEmail(email *string) (*User, error) {

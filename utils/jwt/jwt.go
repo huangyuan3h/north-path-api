@@ -6,14 +6,17 @@ import (
 	"errors"
 	"os"
 
+	"encoding/json"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type MyClaims struct {
-	Email     string
-	Username  string
-	ExpiresAt time.Time
-	Issuer    string
+	Email     string  `json:"email"`
+	Username  string  `json:"username"`
+	Avatar    string  `json:"avatar"`
+	ExpiresAt float64 `json:"exp"`
+	Issuer    string  `json:"iss"`
 }
 
 const SECRET_KEY = "JWT_SECRET"
@@ -46,24 +49,40 @@ func CreateToken(in map[string]interface{}) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyToken(tokenString string) error {
+func VerifyToken(tokenString string) (*MyClaims, error) {
 
 	secret, err := getKey()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secret, nil
 	})
 
-	if err != nil {
-		return err
-	}
-
 	if !token.Valid {
-		return errors.New("token is invalid")
+		return nil, errors.New("token is invalid")
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	claims, ok := token.Claims.(jwt.MapClaims)
+
+	if !ok {
+		return nil, errors.New("failed to parse claims")
+	}
+
+	var myClaims MyClaims
+
+	jsonString, err := json.Marshal(claims)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(jsonString, &myClaims); err != nil {
+		return nil, err
+	}
+
+	return &myClaims, nil
 }

@@ -51,7 +51,7 @@ func (a Auth) CreateAccount(email, password *string) error {
 		Status:   "actived",
 	}
 
-	return a.client.Create(auth)
+	return a.client.CreateOrUpdate(auth)
 }
 
 func (a Auth) VerifyLogin(email, password *string) error {

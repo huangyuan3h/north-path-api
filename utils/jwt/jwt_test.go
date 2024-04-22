@@ -20,14 +20,14 @@ func TestJWT(t *testing.T) {
 		return
 	}
 
-	err = VerifyToken(tokenString)
+	_, err = VerifyToken(tokenString)
 
 	if err != nil {
 		t.Errorf("Error verifying token: %s", err.Error())
 		return
 	}
 
-	err = VerifyToken("error.jwt.token")
+	_, err = VerifyToken("error.jwt.token")
 	if err == nil {
 		t.Errorf("Error verifying token: %s", err.Error())
 		return
