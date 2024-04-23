@@ -11,7 +11,9 @@ import (
 func TestHandlerSanity(t *testing.T) {
 
 	input := events.APIGatewayV2HTTPRequest{
-		Body: "{\"id\":\"01HW4V8ZGWWT1SZ1VXJ94TACYE\"}",
+		PathParameters: map[string]string{
+			"id": "01HW4V8ZGWWT1SZ1VXJ94TACYE",
+		},
 	}
 
 	result, _ := Handler(input)

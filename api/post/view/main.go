@@ -3,8 +3,6 @@ package main
 import (
 	"net/http"
 
-	"encoding/json"
-
 	"api.north-path.site/post/db"
 	"api.north-path.site/utils/errors"
 	awsHttp "api.north-path.site/utils/http"
@@ -27,11 +25,8 @@ type ViewPostResponse struct {
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
-	var viewPostReq ViewPostBody
-	err := json.Unmarshal([]byte(request.Body), &viewPostReq)
-
-	if err != nil {
-		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
+	viewPostReq := &ViewPostBody{
+		Id: request.PathParameters["id"],
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
