@@ -14,7 +14,7 @@ func TestVerifyHeaderAuth(t *testing.T) {
 
 	os.Setenv("JWT_SECRET", "h3OOumyH3vLgUhHve7bLPv8hgNXbxUQr")
 	headers := &map[string]string{
-		"Authorization": mockToken,
+		"authorization": mockToken,
 	}
 
 	input := events.APIGatewayV2HTTPRequest{

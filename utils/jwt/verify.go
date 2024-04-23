@@ -13,6 +13,10 @@ func VerifyRequest(request events.APIGatewayV2HTTPRequest) (*MyClaims, error) {
 	authStr := request.Headers["Authorization"]
 
 	if authStr == "" {
+		authStr = request.Headers["authorization"]
+	}
+
+	if authStr == "" {
 
 		for _, cookie := range request.Cookies {
 
