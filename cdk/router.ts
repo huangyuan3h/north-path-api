@@ -7,6 +7,7 @@ export default (stack:Stack)=>{
         cors: {
             allowOrigins: ["https://www.north-path.site","http://localhost:3000"],
             allowCredentials: true,
+            allowHeaders: ["Authorization"],
           },
         routes: {
           "GET /": "./api/health/main.go",
