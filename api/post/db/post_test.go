@@ -14,10 +14,25 @@ func TestCreateNew(t *testing.T) {
 	category := []string{"category1"}
 	images := []string{"image1"}
 
-	err := post.CreateNew(&email, &subject, &content, &images, &category)
+	_, err := post.CreateNew(&email, &subject, &content, &images, &category)
 
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func TestFindById(t *testing.T) {
+	post := New()
+
+	const id = "01HW4V8ZGWWT1SZ1VXJ94TACYE"
+
+	item, err := post.FindById(id)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if item.PostId != id {
+		t.Error("post id not equal")
 	}
 }
 
