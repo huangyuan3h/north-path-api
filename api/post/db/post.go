@@ -5,6 +5,8 @@ import (
 	"time"
 
 	db "api.north-path.site/utils/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/oklog/ulid"
 )
 
@@ -24,6 +26,7 @@ type Post struct {
 
 type PostMethod interface {
 	CreateNew(email, subject, content *string, images, categories *[]string) (Post, error)
+	FindById(id string) (*Post, error)
 	DeleteById(id string) error
 }
 
@@ -49,6 +52,23 @@ func (p Post) CreateNew(email, subject, content *string, images, categories *[]s
 	}
 
 	return *post, p.client.CreateOrUpdate(post)
+}
+
+func map2Post(postMap map[string]*dynamodb.AttributeValue) (*Post, error) {
+	post := &Post{}
+	err := dynamodbattribute.UnmarshalMap(postMap, post)
+	if err != nil {
+		return nil, err
+	}
+	return post, nil
+}
+
+func (p Post) FindById(id string) (*Post, error) {
+	postMap, err := p.client.FindById("postId", id)
+	if err != nil {
+		return nil, err
+	}
+	return map2Post(postMap)
 }
 
 func (p Post) DeleteById(id string) error {

@@ -35,11 +35,17 @@ export default (stack:Stack)=>{
               timeout: 10,
             }
           },
+          // posts related part
           "POST /post/create": {
             function: {
               handler:"./api/post/create/main.go",
               timeout: 10,
-              
+            }
+          },
+          "GET /post/{id}": {
+            function: {
+              handler:"./api/post/view/main.go",
+              timeout: 10,
             }
           },
         },
