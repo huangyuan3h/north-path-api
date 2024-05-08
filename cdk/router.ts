@@ -40,6 +40,9 @@ export default (stack:Stack)=>{
             function: {
               handler:"./api/post/create/main.go",
               timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
             }
           },
           "GET /post/{id}": {
