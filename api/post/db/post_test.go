@@ -24,7 +24,7 @@ func TestCreateNew(t *testing.T) {
 func TestFindById(t *testing.T) {
 	post := New()
 
-	const id = "01HW4V8ZGWWT1SZ1VXJ94TACYE"
+	const id = "01HXDZY7K8X58EMP171GT32KDQ"
 
 	item, err := post.FindById(id)
 	if err != nil {
@@ -43,4 +43,14 @@ func TestDeleteById(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestSearch(t *testing.T) {
+	post := New()
+
+	item, err := post.Search()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Error(item)
 }

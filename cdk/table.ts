@@ -24,14 +24,15 @@ export const getTableConfig = (stack: Stack) =>{
       const postTable = new Table(stack, "posts", {
         fields: {
           postId: "string",
-          email:"string",
-          subject: "string",
-          category: "string",
-          content: "string",
-          images: "string",
-          createdDate: "number",
+          // email:"string",
+          // subject: "string",
+          // category: "string",
+          // content: "string",
+          // images: "string",
+          // createdDate: "string",
+          updatedDate: "string",
         },
-        primaryIndex: { partitionKey: "postId" },
+        primaryIndex: { partitionKey: "postId"},
       });
 
 

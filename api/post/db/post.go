@@ -28,6 +28,7 @@ type PostMethod interface {
 	CreateNew(email, subject, content *string, images, categories *[]string) (Post, error)
 	FindById(id string) (*Post, error)
 	DeleteById(id string) error
+	Search() ([]Post, error)
 }
 
 func New() PostMethod {
@@ -73,4 +74,9 @@ func (p Post) FindById(id string) (*Post, error) {
 
 func (p Post) DeleteById(id string) error {
 	return p.client.DeleteById("postId", id)
+}
+
+func (p Post) Search() ([]Post, error) {
+
+	return nil, nil
 }
