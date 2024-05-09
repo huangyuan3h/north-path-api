@@ -5,7 +5,7 @@ import (
 	"time"
 
 	db "api.north-path.site/utils/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/oklog/ulid"
 )
@@ -55,7 +55,7 @@ func (p Post) CreateNew(email, subject, content *string, images, categories *[]s
 	return *post, p.client.CreateOrUpdate(post)
 }
 
-func map2Post(postMap map[string]*dynamodb.AttributeValue) (*Post, error) {
+func map2Post(postMap map[string]types.AttributeValue) (*Post, error) {
 	post := &Post{}
 	err := dynamodbattribute.UnmarshalMap(postMap, post)
 	if err != nil {

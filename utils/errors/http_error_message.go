@@ -3,6 +3,7 @@ package errors
 // custom error message
 const (
 	JSONParseError = "JSON Parse Error"
+	UnmarshalError = "unmarshal Error Error"
 	// Create account
 	NotValidEmail        = "not valid email"
 	PasswordError        = "password error"
