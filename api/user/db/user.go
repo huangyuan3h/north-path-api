@@ -1,19 +1,21 @@
 package db
 
 import (
+	"errors"
 	"strings"
 
 	db "api.north-path.site/utils/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	errs "api.north-path.site/utils/errors"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 )
 
 const tableName = "user"
 
 type User struct {
-	Email    string `json:"email"`
-	Avatar   string `json:"avatar"`
-	UserName string `json:"userName"`
-	Bio      string `json:"bio"`
+	Email    string `json:"email" dynamodbav:"email"`
+	Avatar   string `json:"avatar" dynamodbav:"avatar"`
+	UserName string `json:"userName" dynamodbav:"userName"`
+	Bio      string `json:"bio" dynamodbav:"bio"`
 	client   *db.Client
 }
 
@@ -40,50 +42,22 @@ func (u User) CreateNew(email *string) error {
 
 func (u User) FindByEmail(email *string) (*User, error) {
 
-	res, err := u.client.FindById("email", *email)
+	item, err := u.client.FindById("email", *email)
 
 	if err != nil {
 		return nil, err
 	}
 
-	mappedU, err := map2User(res)
+	err = attributevalue.UnmarshalMap(item, &u)
+	if err != nil {
+		return nil, errors.New(errs.UnmarshalError)
+	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	return mappedU, nil
-}
-
-func map2User(res map[string]*dynamodb.AttributeValue) (*User, error) {
-	user := &User{}
-
-	if err := assignStringAttribute(res, "email", &user.Email); err != nil {
-		return nil, err
-	}
-
-	if err := assignStringAttribute(res, "avatar", &user.Avatar); err != nil {
-		return nil, err
-	}
-
-	if err := assignStringAttribute(res, "userName", &user.UserName); err != nil {
-		return nil, err
-	}
-
-	if err := assignStringAttribute(res, "bio", &user.Bio); err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-func assignStringAttribute(res map[string]*dynamodb.AttributeValue, key string, target *string) error {
-	if res[key] == nil || res[key].S == nil {
-		*target = ""
-	} else {
-		*target = *res[key].S
-	}
-	return nil
+	return &u, nil
 }
 
 func getEmailUsername(email string) string {
