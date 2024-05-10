@@ -26,4 +26,7 @@ const (
 	NotValidContent    = "not valid content"
 	NotValidCategories = "not valid categories"
 	NotValidImages     = "not valid images"
+
+	// search page message
+	NotValidLimit = "not valid Limit"
 )

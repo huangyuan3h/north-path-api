@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"api.north-path.site/post/db"
+	"api.north-path.site/post/types"
 	"api.north-path.site/utils/errors"
 	awsHttp "api.north-path.site/utils/http"
 	"github.com/aws/aws-lambda-go/events"
@@ -11,34 +13,35 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type ViewPostBody struct {
-	Id string `json:"id" validate:"required"`
+type SearchPostBody struct {
+	Limit        int32  `json:"limit" validate:"required,max=100"`
+	CurrentToken string `json:"current_token"`
+	Category     string `json:"category"`
 }
 
 type ViewPostResponse struct {
-	Id         string   `json:"id"`
-	Subject    string   `json:"subject" `
-	Content    string   `json:"content" `
-	Categories []string `json:"categories"`
-	Images     []string `json:"images"`
+	Results   []types.Post `json:"results"`
+	NextToken *string      `json:"next_token"`
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
-	viewPostReq := &ViewPostBody{
-		Id: request.PathParameters["id"],
+	var acocuntReq SearchPostBody
+	err := json.Unmarshal([]byte(request.Body), &acocuntReq)
+
+	if err != nil {
+		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
-	errStruct := validate.Struct(viewPostReq)
+	errStruct := validate.Struct(acocuntReq)
 
-	// verify
 	if errStruct != nil {
 		firstErr := errStruct.(validator.ValidationErrors)[0]
 		var errMessage string
 		switch t := firstErr.StructField(); t {
-		case "Id":
-			errMessage = errors.NotValidSubject
+		case "Limit":
+			errMessage = errors.NotValidEmail
 		}
 
 		return errors.New(errMessage, http.StatusBadRequest).GatewayResponse()
@@ -46,18 +49,15 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	db_client := db.New()
 
-	post, err := db_client.FindById(viewPostReq.Id)
+	posts, nextToken, err := db_client.Search(acocuntReq.Limit, acocuntReq.CurrentToken, acocuntReq.Category)
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 	}
 
 	return awsHttp.Ok(&ViewPostResponse{
-		Id:         post.PostId,
-		Subject:    post.Subject,
-		Content:    post.Content,
-		Categories: post.Categories,
-		Images:     post.Images,
+		Results:   posts,
+		NextToken: nextToken,
 	}, http.StatusOK)
 }
 

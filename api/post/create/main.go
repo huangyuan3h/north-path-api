@@ -21,14 +21,6 @@ type CreatePostBody struct {
 	Images     []string `json:"images"  validate:"required"`
 }
 
-type CreatePostResponse struct {
-	Id         string   `json:"id"`
-	Subject    string   `json:"subject" `
-	Content    string   `json:"content" `
-	Categories []string `json:"categories"`
-	Images     []string `json:"images"`
-}
-
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
 	var createPostReq CreatePostBody
@@ -75,13 +67,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 	}
 
-	return awsHttp.Ok(&CreatePostResponse{
-		Id:         post.PostId,
-		Subject:    createPostReq.Subject,
-		Content:    createPostReq.Content,
-		Categories: createPostReq.Categories,
-		Images:     createPostReq.Images,
-	}, http.StatusOK)
+	return awsHttp.Ok(post, http.StatusOK)
 }
 
 func main() {
