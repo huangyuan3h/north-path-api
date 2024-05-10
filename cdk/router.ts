@@ -51,7 +51,7 @@ export default (stack:Stack)=>{
               timeout: 10,
             }
           },
-          "GET /posts": {
+          "POST /posts": {
             function: {
               handler:"./api/post/search/main.go",
               timeout: 10,
