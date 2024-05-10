@@ -7,10 +7,12 @@ import (
 	db "api.north-path.site/utils/dynamodb"
 
 	"errors"
+	"fmt"
 
 	errs "api.north-path.site/utils/errors"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/oklog/ulid"
 )
 
@@ -32,7 +34,7 @@ type PostMethod interface {
 	CreateNew(email, subject, content *string, images, categories *[]string) (Post, error)
 	FindById(id string) (*Post, error)
 	DeleteById(id string) error
-	Search() ([]Post, error)
+	Search(limit int32, currentToken string, category string) ([]Post, *string, error)
 }
 
 func New() PostMethod {
@@ -77,7 +79,43 @@ func (p Post) DeleteById(id string) error {
 	return p.client.DeleteById("postId", id)
 }
 
-func (p Post) Search() ([]Post, error) {
+func (p Post) Search(limit int32, currentToken string, category string) ([]Post, *string, error) {
 
-	return nil, nil
+	statement := fmt.Sprintf("SELECT * FROM \"%v\"", *p.client.TableName)
+	if category != "" {
+		statement = fmt.Sprintf("SELECT * FROM \"%v\" WHERE CONTAINS (categories, '?')", *p.client.TableName)
+	}
+
+	input := &dynamodb.ExecuteStatementInput{
+		Statement: aws.String(statement),
+		Limit:     &limit,
+	}
+
+	if currentToken != "" {
+		input.NextToken = &currentToken
+	}
+
+	if category != "" {
+		params, err := attributevalue.MarshalList([]interface{}{category})
+		if err != nil {
+			return nil, nil, err
+		}
+
+		input.Parameters = params
+	}
+
+	response, err := p.client.ExecuteStatement(input)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var posts []Post
+	err = attributevalue.UnmarshalListOfMaps(response.Items, &posts)
+	nextToken := response.NextToken
+	if err != nil {
+		return nil, nil, err
+	}
+	return posts, nextToken, nil
+
 }

@@ -48,9 +48,15 @@ func TestDeleteById(t *testing.T) {
 func TestSearch(t *testing.T) {
 	post := New()
 
-	item, err := post.Search()
+	item, nextToken, err := post.Search(2, "", "test2")
 	if err != nil {
 		t.Error(err)
 	}
-	t.Error(item)
+	if len(item) == 0 {
+		t.Error("shoule not empty")
+	}
+
+	if nextToken == nil {
+		t.Error("nextToken should not be nil")
+	}
 }

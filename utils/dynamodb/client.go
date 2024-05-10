@@ -25,6 +25,7 @@ type ClientBaseMethod interface {
 	CreateOrUpdate(in interface{}) error
 	FindById(keyName, id string) (map[string]types.AttributeValue, error)
 	DeleteById(keyName, id string) error
+	ExecuteStatement(statement *string, parameters []types.AttributeValue)
 }
 
 func (c Client) CreateOrUpdate(in interface{}) error {
@@ -135,4 +136,8 @@ func getTableName(tableName string) string {
 	}
 
 	return stage + PROJECT_STR + tableName
+}
+
+func (c Client) ExecuteStatement(executeInput *dynamodb.ExecuteStatementInput) (*dynamodb.ExecuteStatementOutput, error) {
+	return c.Client.ExecuteStatement(context.TODO(), executeInput)
 }
