@@ -51,6 +51,12 @@ export default (stack:Stack)=>{
               timeout: 10,
             }
           },
+          "GET /posts": {
+            function: {
+              handler:"./api/post/search/main.go",
+              timeout: 10,
+            }
+          },
         },
       });
       return api;

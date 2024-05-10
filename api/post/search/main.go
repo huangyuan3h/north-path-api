@@ -1,8 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"strconv"
 
 	"api.north-path.site/post/db"
 	"api.north-path.site/post/types"
@@ -24,17 +25,39 @@ type ViewPostResponse struct {
 	NextToken *string      `json:"next_token"`
 }
 
+func atoi32(val string) (int32, error) {
+	i, err := strconv.ParseInt(val, 10, 32)
+	if err != nil {
+		return 0, err
+	}
+	return int32(i), nil
+}
+
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
-	var acocuntReq SearchPostBody
-	err := json.Unmarshal([]byte(request.Body), &acocuntReq)
+	body := &SearchPostBody{
+		Limit:        10,
+		CurrentToken: "",
+		Category:     "",
+	} // defualt value
 
-	if err != nil {
-		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
+	for key, value := range request.QueryStringParameters {
+		switch key {
+		case "limit":
+			limit, err := atoi32(value)
+			if err != nil {
+				return errors.New("error parsing limit", http.StatusBadRequest).GatewayResponse()
+			}
+			body.Limit = int32(limit)
+		case "current_token":
+			body.CurrentToken = value
+		case "category":
+			body.Category = value
+		}
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
-	errStruct := validate.Struct(acocuntReq)
+	errStruct := validate.Struct(body)
 
 	if errStruct != nil {
 		firstErr := errStruct.(validator.ValidationErrors)[0]
@@ -49,7 +72,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	db_client := db.New()
 
-	posts, nextToken, err := db_client.Search(acocuntReq.Limit, acocuntReq.CurrentToken, acocuntReq.Category)
+	posts, nextToken, err := db_client.Search(body.Limit, body.CurrentToken, body.Category)
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
