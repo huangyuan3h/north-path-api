@@ -83,7 +83,7 @@ func (p Post) Search(limit int32, currentToken string, category string) ([]Post,
 
 	statement := fmt.Sprintf("SELECT * FROM \"%v\"", *p.client.TableName)
 	if category != "" {
-		statement = fmt.Sprintf("SELECT * FROM \"%v\" WHERE CONTAINS (categories, '?')", *p.client.TableName)
+		statement = fmt.Sprintf("SELECT * FROM \"%v\" WHERE contains(\"categories\", ?)", *p.client.TableName)
 	}
 
 	input := &dynamodb.ExecuteStatementInput{
