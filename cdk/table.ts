@@ -23,8 +23,9 @@ export const getTableConfig = (stack: Stack) =>{
 
       const postTable = new Table(stack, "posts", {
         fields: {
+          status: "string",
           postId: "string",
-          // email:"string",
+          email:"string",
           // subject: "string",
           // category: "string",
           // content: "string",
@@ -32,7 +33,9 @@ export const getTableConfig = (stack: Stack) =>{
           // createdDate: "string",
           updatedDate: "string",
         },
-        primaryIndex: { partitionKey: "postId", sortKey:"updatedDate"},
+        primaryIndex: { partitionKey: "postId"},
+        globalIndexes: { "GSI1": { partitionKey: "status", sortKey: "updatedDate" },
+        "GSI2": { partitionKey: "email", sortKey: "updatedDate" }, }
       });
 
 

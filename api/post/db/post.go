@@ -5,8 +5,6 @@ import (
 
 	"time"
 
-	"context"
-
 	db "api.north-path.site/utils/dynamodb"
 
 	"fmt"
@@ -14,7 +12,6 @@ import (
 	types "api.north-path.site/post/types"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/oklog/ulid"
 )
@@ -30,7 +27,7 @@ type PostMethod interface {
 	CreateNew(email, subject, content *string, images, categories *[]string) (*types.Post, error)
 	FindById(id string) (*types.Post, error)
 	DeleteById(id string) error
-	Search(limit int32, currentId string, category string) ([]types.Post, error)
+	Search(limit int32, currentId string, category string) ([]types.Post, *string, error)
 }
 
 func New() PostMethod {
@@ -53,6 +50,7 @@ func (p Post) CreateNew(email, subject, content *string, images, categories *[]s
 			Images:      *images,
 			CreatedDate: time.Now().Format(time.RFC3339),
 			UpdatedDate: time.Now().Format(time.RFC3339),
+			Status:      "Active",
 		}
 
 	return post, p.client.CreateOrUpdate(post)
@@ -91,66 +89,45 @@ func (p Post) DeleteById(id string) error {
 	return p.client.DeleteById("postId", id)
 }
 
-func (p Post) Search(limit int32, currentId string, category string) ([]types.Post, error) {
+func (p Post) Search(limit int32, currentId string, category string) ([]types.Post, *string, error) {
 
-	var posts []types.Post
-	var err error
-
-	projEx := expression.NamesList(
-		expression.Name("postId"), expression.Name("email"), expression.Name("subject"), expression.Name("content"))
-
-	expr, err := expression.NewBuilder().WithProjection(projEx).Build()
-
-	if err != nil {
-		return nil, err
+	var statement string
+	if category == "" {
+		statement = fmt.Sprintf("SELECT * FROM \"%v\".\"GSI1\" where status = 'Active' order by updatedDate desc", *p.client.TableName)
+	} else {
+		statement = fmt.Sprintf("SELECT * FROM \"%v\".\"GSI1\" where status = 'Active' and contains(\"categories\", ?) order by updatedDate desc", *p.client.TableName)
 	}
 
-	scanInput := &dynamodb.ScanInput{
-		TableName:                 aws.String(*p.client.TableName),
-		ExpressionAttributeNames:  expr.Names(),
-		ExpressionAttributeValues: expr.Values(),
-		FilterExpression:          expr.Filter(),
-		ProjectionExpression:      expr.Projection(),
-		Limit:                     aws.Int32(limit),
+	input := &dynamodb.ExecuteStatementInput{
+		Statement: aws.String(statement),
+		Limit:     aws.Int32(limit),
 	}
 
 	if currentId != "" {
-		previousPost, err := p.FindById(currentId)
-		if err != nil {
-			return nil, err
-		}
-		pointer := types.SearchKeys{PostId: previousPost.PostId, UpdatedDate: previousPost.UpdatedDate}
-		startKey, err := attributevalue.MarshalMap(pointer)
-		if err != nil {
-			return nil, err
-		}
-		scanInput.ExclusiveStartKey = startKey
+		input.NextToken = aws.String(currentId)
 	}
 
-	paginator := dynamodb.NewScanPaginator(p.client.Client, scanInput)
+	if category != "" {
+		params, err := attributevalue.MarshalList([]interface{}{category})
 
-	count := 0
-	for paginator.HasMorePages() {
-		response, err := paginator.NextPage(context.TODO())
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-
-		var postsPage []types.Post
-		err = attributevalue.UnmarshalListOfMaps(response.Items, &postsPage)
-		if err != nil {
-			return nil, err
-		}
-
-		count = count + len(postsPage)
-
-		posts = append(posts, postsPage...)
-		if count >= int(limit) {
-			break
-		}
+		input.Parameters = params
 	}
 
-	posts = posts[:limit]
+	response, err := p.client.ExecuteStatement(input)
 
-	return posts, nil
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var posts []types.Post
+	err = attributevalue.UnmarshalListOfMaps(response.Items, &posts)
+	nextToken := response.NextToken
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return posts, nextToken, nil
 }

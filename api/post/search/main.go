@@ -16,12 +16,13 @@ import (
 
 type SearchPostBody struct {
 	Limit     int32  `json:"limit" validate:"required,max=100"`
-	CurrentId string `json:"current_id"`
+	NextToken string `json:"next_token"`
 	Category  string `json:"category"`
 }
 
 type ViewPostResponse struct {
-	Results []types.Post `json:"results"`
+	Results   []types.Post `json:"results"`
+	NextToken string       `json:"next_token"`
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -49,14 +50,15 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	db_client := db.New()
 
-	posts, err := db_client.Search(body.Limit, body.CurrentId, body.Category)
+	posts, nextToken, err := db_client.Search(body.Limit, body.NextToken, body.Category)
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 	}
 
 	return awsHttp.Ok(&ViewPostResponse{
-		Results: posts,
+		Results:   posts,
+		NextToken: *nextToken,
 	}, http.StatusOK)
 }
 

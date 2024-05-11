@@ -9,6 +9,7 @@ type Post struct {
 	Images      []string `json:"images" dynamodbav:"images"`
 	CreatedDate string   `json:"createdDate" dynamodbav:"createdDate"`
 	UpdatedDate string   `json:"updatedDate" dynamodbav:"updatedDate"`
+	Status      string   `json:"status" dynamodbav:"status"`
 }
 
 type SearchKeys struct {

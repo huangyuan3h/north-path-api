@@ -11,7 +11,7 @@ import (
 func TestHandlerSanity(t *testing.T) {
 
 	input := events.APIGatewayV2HTTPRequest{
-		Body: "{\"limit\":1}",
+		Body: "{\"limit\":1,\"next_token\":\"\",\"category\":\"asd\"}",
 	}
 
 	result, _ := Handler(input)
