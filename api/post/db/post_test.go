@@ -2,9 +2,6 @@ package db
 
 import (
 	"testing"
-
-	types "api.north-path.site/post/types"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 )
 
 func TestCreateNew(t *testing.T) {
@@ -51,15 +48,7 @@ func TestDeleteById(t *testing.T) {
 func TestSearch(t *testing.T) {
 	post := New()
 
-	p := types.SearchKeys{PostId: "01HXJVRDN4WK6T6TF6PZYRC6FY", UpdatedDate: "2024-05-11T11:39:44+08:00"}
-
-	a, err := attributevalue.MarshalMap(p)
-
-	if err != nil {
-		t.Error(err)
-	}
-
-	item, nextToken, err := post.Search(1, a, "")
+	item, err := post.Search(1, "01HXJVRDN4WK6T6TF6PZYRC6FY", "")
 	if err != nil {
 		t.Error(err)
 	}
@@ -67,7 +56,4 @@ func TestSearch(t *testing.T) {
 		t.Error("shoule not empty")
 	}
 
-	if nextToken == nil {
-		t.Error("nextToken should not be nil")
-	}
 }

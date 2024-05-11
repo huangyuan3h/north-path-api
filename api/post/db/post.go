@@ -17,8 +17,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/oklog/ulid"
-
-	dynamodbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 const tableName = "posts"
@@ -32,7 +30,7 @@ type PostMethod interface {
 	CreateNew(email, subject, content *string, images, categories *[]string) (*types.Post, error)
 	FindById(id string) (*types.Post, error)
 	DeleteById(id string) error
-	Search(limit int32, currentToken map[string]dynamodbTypes.AttributeValue, category string) ([]types.Post, map[string]dynamodbTypes.AttributeValue, error)
+	Search(limit int32, currentId string, category string) ([]types.Post, error)
 }
 
 func New() PostMethod {
@@ -93,17 +91,18 @@ func (p Post) DeleteById(id string) error {
 	return p.client.DeleteById("postId", id)
 }
 
-func (p Post) Search(limit int32, currentToken map[string]dynamodbTypes.AttributeValue, category string) ([]types.Post, map[string]dynamodbTypes.AttributeValue, error) {
+func (p Post) Search(limit int32, currentId string, category string) ([]types.Post, error) {
 
 	var posts []types.Post
 	var err error
 
 	projEx := expression.NamesList(
 		expression.Name("postId"), expression.Name("email"), expression.Name("subject"), expression.Name("content"))
+
 	expr, err := expression.NewBuilder().WithProjection(projEx).Build()
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	scanInput := &dynamodb.ScanInput{
@@ -115,31 +114,37 @@ func (p Post) Search(limit int32, currentToken map[string]dynamodbTypes.Attribut
 		Limit:                     aws.Int32(limit),
 	}
 
-	if currentToken != nil {
-		scanInput.ExclusiveStartKey = currentToken
+	if currentId != "" {
+		previousPost, err := p.FindById(currentId)
+		if err != nil {
+			return nil, err
+		}
+		pointer := types.SearchKeys{PostId: previousPost.PostId, UpdatedDate: previousPost.UpdatedDate}
+		startKey, err := attributevalue.MarshalMap(pointer)
+		if err != nil {
+			return nil, err
+		}
+		scanInput.ExclusiveStartKey = startKey
 	}
 
 	paginator := dynamodb.NewScanPaginator(p.client.Client, scanInput)
-
-	var nextKey map[string]dynamodbTypes.AttributeValue
 
 	count := 0
 	for paginator.HasMorePages() {
 		response, err := paginator.NextPage(context.TODO())
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		var postsPage []types.Post
 		err = attributevalue.UnmarshalListOfMaps(response.Items, &postsPage)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		count = count + len(postsPage)
 
 		posts = append(posts, postsPage...)
-		nextKey = response.LastEvaluatedKey
 		if count >= int(limit) {
 			break
 		}
@@ -147,5 +152,5 @@ func (p Post) Search(limit int32, currentToken map[string]dynamodbTypes.Attribut
 
 	posts = posts[:limit]
 
-	return posts, nextKey, nil
+	return posts, nil
 }
