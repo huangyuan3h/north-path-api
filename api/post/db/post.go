@@ -2,19 +2,23 @@ package db
 
 import (
 	"crypto/rand"
+
 	"time"
+
+	"context"
 
 	db "api.north-path.site/utils/dynamodb"
 
-	"errors"
 	"fmt"
 
 	types "api.north-path.site/post/types"
-	errs "api.north-path.site/utils/errors"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/oklog/ulid"
+
+	dynamodbTypes "github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 const tableName = "posts"
@@ -28,7 +32,7 @@ type PostMethod interface {
 	CreateNew(email, subject, content *string, images, categories *[]string) (*types.Post, error)
 	FindById(id string) (*types.Post, error)
 	DeleteById(id string) error
-	Search(limit int32, currentToken string, category string) ([]types.Post, *string, error)
+	Search(limit int32, currentToken map[string]dynamodbTypes.AttributeValue, category string) ([]types.Post, map[string]dynamodbTypes.AttributeValue, error)
 }
 
 func New() PostMethod {
@@ -57,14 +61,29 @@ func (p Post) CreateNew(email, subject, content *string, images, categories *[]s
 }
 
 func (p Post) FindById(id string) (*types.Post, error) {
-	item, err := p.client.FindById("postId", id)
+	statement := fmt.Sprintf("SELECT * FROM \"%v\" WHERE postId=?", *p.client.TableName)
+
+	params, err := attributevalue.MarshalList([]interface{}{id})
+
 	if err != nil {
 		return nil, err
 	}
-	var post types.Post
-	err = attributevalue.UnmarshalMap(item, &post)
+
+	input := &dynamodb.ExecuteStatementInput{
+		Statement:  aws.String(statement),
+		Parameters: params,
+	}
+	response, err := p.client.ExecuteStatement(input)
+
 	if err != nil {
-		return nil, errors.New(errs.UnmarshalError)
+		return nil, err
+	}
+
+	var post types.Post
+	err = attributevalue.UnmarshalMap(response.Items[0], &post)
+
+	if err != nil {
+		return nil, err
 	}
 
 	return &post, nil
@@ -74,43 +93,59 @@ func (p Post) DeleteById(id string) error {
 	return p.client.DeleteById("postId", id)
 }
 
-func (p Post) Search(limit int32, currentToken string, category string) ([]types.Post, *string, error) {
+func (p Post) Search(limit int32, currentToken map[string]dynamodbTypes.AttributeValue, category string) ([]types.Post, map[string]dynamodbTypes.AttributeValue, error) {
 
-	statement := fmt.Sprintf("SELECT * FROM \"%v\"", *p.client.TableName)
-	if category != "" {
-		statement = fmt.Sprintf("SELECT * FROM \"%v\" WHERE contains(\"categories\", ?)", *p.client.TableName)
+	var posts []types.Post
+	var err error
+
+	projEx := expression.NamesList(
+		expression.Name("postId"), expression.Name("email"), expression.Name("subject"), expression.Name("content"))
+	expr, err := expression.NewBuilder().WithProjection(projEx).Build()
+
+	if err != nil {
+		return nil, nil, err
 	}
 
-	input := &dynamodb.ExecuteStatementInput{
-		Statement: aws.String(statement),
-		Limit:     &limit,
+	scanInput := &dynamodb.ScanInput{
+		TableName:                 aws.String(*p.client.TableName),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
+		Limit:                     aws.Int32(limit),
 	}
 
-	if currentToken != "" {
-		input.NextToken = &currentToken
+	if currentToken != nil {
+		scanInput.ExclusiveStartKey = currentToken
 	}
 
-	if category != "" {
-		params, err := attributevalue.MarshalList([]interface{}{category})
+	paginator := dynamodb.NewScanPaginator(p.client.Client, scanInput)
+
+	var nextKey map[string]dynamodbTypes.AttributeValue
+
+	count := 0
+	for paginator.HasMorePages() {
+		response, err := paginator.NextPage(context.TODO())
 		if err != nil {
 			return nil, nil, err
 		}
 
-		input.Parameters = params
+		var postsPage []types.Post
+		err = attributevalue.UnmarshalListOfMaps(response.Items, &postsPage)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		count = count + len(postsPage)
+
+		posts = append(posts, postsPage...)
+		nextKey = response.LastEvaluatedKey
+		if count >= int(limit) {
+			break
+		}
 	}
 
-	response, err := p.client.ExecuteStatement(input)
+	posts = posts[:limit]
 
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var posts []types.Post
-	err = attributevalue.UnmarshalListOfMaps(response.Items, &posts)
-	nextToken := response.NextToken
-	if err != nil {
-		return nil, nil, err
-	}
-	return posts, nextToken, nil
-
+	return posts, nextKey, nil
 }

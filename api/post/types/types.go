@@ -10,3 +10,8 @@ type Post struct {
 	CreatedDate string   `json:"createdDate" dynamodbav:"createdDate"`
 	UpdatedDate string   `json:"updatedDate" dynamodbav:"updatedDate"`
 }
+
+type SearchKeys struct {
+	PostId      string `json:"postId" dynamodbav:"postId"`
+	UpdatedDate string `json:"updatedDate" dynamodbav:"updatedDate"`
+}

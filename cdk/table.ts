@@ -32,7 +32,7 @@ export const getTableConfig = (stack: Stack) =>{
           // createdDate: "string",
           updatedDate: "string",
         },
-        primaryIndex: { partitionKey: "postId"},
+        primaryIndex: { partitionKey: "postId", sortKey:"updatedDate"},
       });
 
 

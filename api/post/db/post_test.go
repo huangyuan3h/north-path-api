@@ -2,6 +2,9 @@ package db
 
 import (
 	"testing"
+
+	types "api.north-path.site/post/types"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 )
 
 func TestCreateNew(t *testing.T) {
@@ -24,7 +27,7 @@ func TestCreateNew(t *testing.T) {
 func TestFindById(t *testing.T) {
 	post := New()
 
-	const id = "01HXEE00422CT5ARXN05G56RSQ"
+	const id = "01HXGY4M2327R3TW5TY6H1BT6K"
 
 	item, err := post.FindById(id)
 	if err != nil {
@@ -48,7 +51,15 @@ func TestDeleteById(t *testing.T) {
 func TestSearch(t *testing.T) {
 	post := New()
 
-	item, nextToken, err := post.Search(2, "", "")
+	p := types.SearchKeys{PostId: "01HXJVRDN4WK6T6TF6PZYRC6FY", UpdatedDate: "2024-05-11T11:39:44+08:00"}
+
+	a, err := attributevalue.MarshalMap(p)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	item, nextToken, err := post.Search(1, a, "")
 	if err != nil {
 		t.Error(err)
 	}
