@@ -15,7 +15,7 @@ import (
 )
 
 type SearchPostBody struct {
-	Limit     int32  `json:"limit" validate:"required,max=100"`
+	Limit     int32  `json:"limit" validate:"required,max=1000"`
 	NextToken string `json:"next_token"`
 	Category  string `json:"category"`
 }
@@ -54,6 +54,13 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
+	}
+
+	// if no next token just return null
+	if nextToken == nil {
+		return awsHttp.Ok(&ViewPostResponse{
+			Results: posts,
+		}, http.StatusOK)
 	}
 
 	return awsHttp.Ok(&ViewPostResponse{
