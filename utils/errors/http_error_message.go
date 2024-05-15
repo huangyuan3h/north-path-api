@@ -3,6 +3,7 @@ package errors
 // custom error message
 const (
 	JSONParseError = "JSON Parse Error"
+	UnmarshalError = "unmarshal Error Error"
 	// Create account
 	NotValidEmail        = "not valid email"
 	PasswordError        = "password error"
@@ -25,4 +26,7 @@ const (
 	NotValidContent    = "not valid content"
 	NotValidCategories = "not valid categories"
 	NotValidImages     = "not valid images"
+
+	// search page message
+	NotValidLimit = "not valid Limit"
 )

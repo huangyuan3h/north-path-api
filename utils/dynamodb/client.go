@@ -1,13 +1,16 @@
 package dynamodb
 
 import (
+	"context"
 	"errors"
+	"log"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 const STAGE_KEY = "SST_STAGE"
@@ -15,24 +18,28 @@ const PROJECT_STR = "-north-path-api-"
 
 type Client struct {
 	TableName *string
-	Client    *dynamodb.DynamoDB
+	Client    *dynamodb.Client
 }
 
 type ClientBaseMethod interface {
 	CreateOrUpdate(in interface{}) error
-	FindById(keyName, id string) (map[string]*dynamodb.AttributeValue, error)
+	FindById(keyName, id string) (map[string]types.AttributeValue, error)
 	DeleteById(keyName, id string) error
+	ExecuteStatement(statement *string, parameters []types.AttributeValue)
 }
 
 func (c Client) CreateOrUpdate(in interface{}) error {
-	av, err := dynamodbattribute.MarshalMap(in)
+	item, err := attributevalue.MarshalMap(in)
 	if err != nil {
 		return err
 	}
-	_, err = c.Client.PutItem(&dynamodb.PutItemInput{
-		Item:      av,
+
+	input := &dynamodb.PutItemInput{
+		Item:      item,
 		TableName: c.TableName,
-	})
+	}
+
+	_, err = c.Client.PutItem(context.TODO(), input)
 
 	if err != nil {
 		return err
@@ -41,14 +48,17 @@ func (c Client) CreateOrUpdate(in interface{}) error {
 	return nil
 }
 
-func (c Client) FindById(keyName, id string) (map[string]*dynamodb.AttributeValue, error) {
+func (c Client) FindById(keyName, id string) (map[string]types.AttributeValue, error) {
 	if keyName == "" {
 		return nil, errors.New("keyname is required")
 	}
-	key := map[string]*dynamodb.AttributeValue{
-		keyName: {
-			S: aws.String(id),
-		},
+	val, err := attributevalue.Marshal(id)
+	if err != nil {
+		return nil, err
+	}
+
+	key := map[string]types.AttributeValue{
+		keyName: val,
 	}
 
 	return GetItem(c.Client, *c.TableName, key)
@@ -58,23 +68,27 @@ func (c Client) DeleteById(keyName, id string) error {
 	if keyName == "" {
 		return errors.New("keyname is required")
 	}
-	key := map[string]*dynamodb.AttributeValue{
-		keyName: {
-			S: aws.String(id),
-		},
+
+	val, err := attributevalue.Marshal(id)
+	if err != nil {
+		return err
+	}
+
+	key := map[string]types.AttributeValue{
+		keyName: val,
 	}
 
 	return DeleteItem(c.Client, *c.TableName, key)
 }
 
-func GetItem(svc *dynamodb.DynamoDB, tableName string, key map[string]*dynamodb.AttributeValue) (map[string]*dynamodb.AttributeValue, error) {
+func GetItem(svc *dynamodb.Client, tableName string, key map[string]types.AttributeValue) (map[string]types.AttributeValue, error) {
 
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key:       key,
 	}
 
-	result, err := svc.GetItem(input)
+	result, err := svc.GetItem(context.TODO(), input)
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +96,14 @@ func GetItem(svc *dynamodb.DynamoDB, tableName string, key map[string]*dynamodb.
 	return result.Item, nil
 }
 
-func DeleteItem(svc *dynamodb.DynamoDB, tableName string, key map[string]*dynamodb.AttributeValue) error {
+func DeleteItem(svc *dynamodb.Client, tableName string, key map[string]types.AttributeValue) error {
 
 	input := &dynamodb.DeleteItemInput{
 		TableName: aws.String(tableName),
 		Key:       key,
 	}
 
-	_, err := svc.DeleteItem(input)
+	_, err := svc.DeleteItem(context.TODO(), input)
 	if err != nil {
 		return err
 	}
@@ -103,12 +117,13 @@ func New(tableName string) Client {
 	return Client{TableName: &t, Client: client}
 }
 
-func initDynamo() *dynamodb.DynamoDB {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+func initDynamo() *dynamodb.Client {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
 
-	client := dynamodb.New(sess)
+	client := dynamodb.NewFromConfig(cfg)
 	return client
 }
 
@@ -121,4 +136,8 @@ func getTableName(tableName string) string {
 	}
 
 	return stage + PROJECT_STR + tableName
+}
+
+func (c Client) ExecuteStatement(executeInput *dynamodb.ExecuteStatementInput) (*dynamodb.ExecuteStatementOutput, error) {
+	return c.Client.ExecuteStatement(context.TODO(), executeInput)
 }

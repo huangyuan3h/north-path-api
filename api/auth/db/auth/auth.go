@@ -5,20 +5,30 @@ import (
 
 	db "api.north-path.site/utils/dynamodb"
 	errs "api.north-path.site/utils/errors"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 const tableName = "auth"
 
 type Auth struct {
-	Email    string `json:"email"`
-	Password []byte `json:"password"`
-	Status   string `json:"status"`
+	Email    string `json:"email" dynamodbav:"email"`
+	Password []byte `json:"password" dynamodbav:"password"`
+	Status   string `json:"status" dynamodbav:"status"`
 	client   *db.Client
 }
 
 type AuthMethod interface {
 	CreateAccount(email, password *string) error
 	VerifyLogin(email, password *string) error
+}
+
+func (a Auth) GetKey() map[string]types.AttributeValue {
+	email, err := attributevalue.Marshal(a.Email)
+	if err != nil {
+		panic(err)
+	}
+	return map[string]types.AttributeValue{"email": email}
 }
 
 func New() Auth {
@@ -64,7 +74,12 @@ func (a Auth) VerifyLogin(email, password *string) error {
 		return errors.New(errs.AccountNotExist)
 	}
 
-	decryptedPassword, err := decrypt(item["password"].B)
+	err = attributevalue.UnmarshalMap(item, &a)
+	if err != nil {
+		return errors.New(errs.UnmarshalError)
+	}
+
+	decryptedPassword, err := decrypt(a.Password)
 
 	if err != nil {
 		return errors.New(errs.PasswordDecryptedError)

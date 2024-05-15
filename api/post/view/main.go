@@ -15,14 +15,6 @@ type ViewPostBody struct {
 	Id string `json:"id" validate:"required"`
 }
 
-type ViewPostResponse struct {
-	Id         string   `json:"id"`
-	Subject    string   `json:"subject" `
-	Content    string   `json:"content" `
-	Categories []string `json:"categories"`
-	Images     []string `json:"images"`
-}
-
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
 	viewPostReq := &ViewPostBody{
@@ -52,13 +44,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 	}
 
-	return awsHttp.Ok(&ViewPostResponse{
-		Id:         post.PostId,
-		Subject:    post.Subject,
-		Content:    post.Content,
-		Categories: post.Categories,
-		Images:     post.Images,
-	}, http.StatusOK)
+	return awsHttp.Ok(post, http.StatusOK)
 }
 
 func main() {
