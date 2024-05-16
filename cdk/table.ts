@@ -26,16 +26,22 @@ export const getTableConfig = (stack: Stack) =>{
           status: "string",
           postId: "string",
           email:"string",
-          // subject: "string",
-          // category: "string",
-          // content: "string",
-          // images: "string",
-          // createdDate: "string",
+          category: "string",
+          subject: "string",
+          location: "string",
+          content: "string",
+          images: "string",
+          topic:"string",
+          createdDate: "string",
           updatedDate: "string",
+          like:"number",
+          sortingScore:"number",
         },
         primaryIndex: { partitionKey: "postId"},
-        globalIndexes: { "GSI1": { partitionKey: "status", sortKey: "updatedDate" },
-        "GSI2": { partitionKey: "email", sortKey: "updatedDate" }, }
+        globalIndexes: { "all": { partitionKey: "status", sortKey: "sortingScore" },
+        "myPost": { partitionKey: "email", sortKey: "updatedDate" }, 
+        "category": { partitionKey: "category", sortKey: "sortingScore" },
+        "location": { partitionKey: "location", sortKey: "sortingScore" }, }
       });
 
 
