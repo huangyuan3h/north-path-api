@@ -97,9 +97,9 @@ func (p Post) Search(limit int32, currentId string, category string) ([]types.Po
 
 	var statement string
 	if category == "" {
-		statement = fmt.Sprintf("SELECT * FROM \"%v\".\"GSI1\" where status = 'Active' order by updatedDate desc", *p.client.TableName)
+		statement = fmt.Sprintf("SELECT * FROM \"%v\".\"all\" where status = 'Active' order by sortingScore desc", *p.client.TableName)
 	} else {
-		statement = fmt.Sprintf("SELECT * FROM \"%v\".\"GSI1\" where status = 'Active' and contains(\"categories\", ?) order by updatedDate desc", *p.client.TableName)
+		statement = fmt.Sprintf("SELECT * FROM \"%v\".\"category\" where category = ? order by sortingScore desc", *p.client.TableName)
 	}
 
 	input := &dynamodb.ExecuteStatementInput{

@@ -26,7 +26,7 @@ func TestCreateNew(t *testing.T) {
 func TestFindById(t *testing.T) {
 	post := New()
 
-	const id = "01HXGY4M2327R3TW5TY6H1BT6K"
+	const id = "01HY2S04E8H8JD6DSQ2E6RWBRW"
 
 	item, err := post.FindById(id)
 	if err != nil {
@@ -41,7 +41,7 @@ func TestFindById(t *testing.T) {
 func TestDeleteById(t *testing.T) {
 	post := New()
 
-	err := post.DeleteById("01HXEE00422CT5ARXN05G56RSQ")
+	err := post.DeleteById("01HY2S04E8H8JD6DSQ2E6RWBRW")
 	if err != nil {
 		t.Error(err)
 	}
@@ -50,7 +50,7 @@ func TestDeleteById(t *testing.T) {
 func TestSearch(t *testing.T) {
 	post := New()
 
-	item, nextToken, err := post.Search(3, "", "asd")
+	item, nextToken, err := post.Search(2, "", "category1")
 	if err != nil {
 		t.Error(err)
 	}
