@@ -15,10 +15,12 @@ import (
 )
 
 type CreatePostBody struct {
-	Subject    string   `json:"subject" validate:"required,min=6,max=50"`
-	Content    string   `json:"content"  validate:"required,max=5000"`
-	Categories []string `json:"categories" validate:"required"`
-	Images     []string `json:"images"  validate:"required"`
+	Subject  string   `json:"subject" validate:"required,min=6,max=50"`
+	Content  string   `json:"content"  validate:"max=5000"`
+	Category string   `json:"category" validate:"required"`
+	Location string   `json:"location"`
+	Topics   []string `json:"topics"`
+	Images   []string `json:"images"  validate:"required"`
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -61,7 +63,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	db_client := db.New()
 
-	post, err := db_client.CreateNew(&claim.Email, &createPostReq.Subject, &createPostReq.Content, &createPostReq.Images, &createPostReq.Categories)
+	post, err := db_client.CreateNew(&claim.Email, &createPostReq.Subject, &createPostReq.Content, &createPostReq.Category, &createPostReq.Location, &createPostReq.Images, &createPostReq.Topics)
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()

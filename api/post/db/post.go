@@ -24,7 +24,7 @@ type Post struct {
 }
 
 type PostMethod interface {
-	CreateNew(email, subject, content *string, images, categories *[]string) (*types.Post, error)
+	CreateNew(email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error)
 	FindById(id string) (*types.Post, error)
 	DeleteById(id string) error
 	Search(limit int32, currentId string, category string) ([]types.Post, *string, error)
@@ -36,21 +36,25 @@ func New() PostMethod {
 	return Post{client: &client}
 }
 
-func (p Post) CreateNew(email, subject, content *string, images, categories *[]string) (*types.Post, error) {
+func (p Post) CreateNew(email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error) {
 	t := time.Now()
 	entropy := ulid.Monotonic(rand.Reader, 0)
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+	timestamp_ms := int64(time.Now().UnixNano() / int64(time.Millisecond))
 	post :=
 		&types.Post{
-			PostId:      id.String(),
-			Email:       *email,
-			Subject:     *subject,
-			Content:     *content,
-			Categories:  *categories,
-			Images:      *images,
-			CreatedDate: time.Now().Format(time.RFC3339),
-			UpdatedDate: time.Now().Format(time.RFC3339),
-			Status:      "Active",
+			PostId:       id.String(),
+			Email:        *email,
+			Subject:      *subject,
+			Content:      *content,
+			Topics:       *topics,
+			Category:     *category,
+			Location:     *location,
+			Images:       *images,
+			UpdatedDate:  time.Now().Format(time.RFC3339),
+			Like:         0,
+			SortingScore: timestamp_ms,
+			Status:       "Active",
 		}
 
 	return post, p.client.CreateOrUpdate(post)

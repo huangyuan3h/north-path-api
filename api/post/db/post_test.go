@@ -11,10 +11,12 @@ func TestCreateNew(t *testing.T) {
 	email := "email1@example.com"
 	subject := "subject1"
 	content := "content1"
-	category := []string{"category1"}
+	category := "category1"
+	location := "location1"
+	topics := []string{"topic1"}
 	images := []string{"image1"}
 
-	_, err := post.CreateNew(&email, &subject, &content, &images, &category)
+	_, err := post.CreateNew(&email, &subject, &content, &category, &location, &images, &topics)
 
 	if err != nil {
 		t.Error(err)
