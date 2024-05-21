@@ -28,6 +28,16 @@ export default (stack:Stack)=>{
               },
             }
           },
+          "POST /auth/login/google": {
+            function: {
+              handler:"./api/auth/google/main.go",
+              timeout: 10,
+              environment: { 
+                NEXT_PUBLIC_BUCKET_NAME: process.env.NEXT_PUBLIC_BUCKET_NAME ?? "",
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
           // rcic part
           "POST /rcic/search": {
             function: {

@@ -58,18 +58,23 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(errors.PasswordError, http.StatusBadRequest).GatewayResponse()
 	}
 
-	auth := auth.New()
-	user := user.New()
+	authClient := auth.New()
+	userClient := user.New()
 
 	// add record and send email
 
-	err = auth.CreateAccount(&acocuntReq.Email, &acocuntReq.Password)
+	err = authClient.CreateAccount(&acocuntReq.Email, &acocuntReq.Password)
 
 	if err != nil {
 		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
 	}
 
-	err = user.CreateNew(&acocuntReq.Email)
+	u := user.User{
+		Email:    acocuntReq.Email,
+		UserName: user.GetEmailUsername(acocuntReq.Email),
+	}
+
+	err = userClient.CreateNew(&u)
 	if err != nil {
 		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
 	}

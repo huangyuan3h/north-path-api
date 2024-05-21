@@ -1,0 +1,26 @@
+package main
+
+import (
+	"testing"
+
+	"net/http"
+
+	"os"
+
+	"github.com/aws/aws-lambda-go/events"
+)
+
+func TestHandlerSanity(t *testing.T) {
+
+	os.Setenv("JWT_SECRET", "h3OOumyH3vLgUhHve7bLPv8hgNXbxUQr")
+	os.Setenv("NEXT_PUBLIC_BUCKET_NAME", "dev-north-path-api-stack-avatarbucketd80dbdb5-hctiiwefencj")
+	credential := "eyJhbGciOiJSUzI1NiIsImtpZCI6IjMyM2IyMTRhZTY5NzVhMGYwMzRlYTc3MzU0ZGMwYzI1ZDAzNjQyZGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIzNzAzNTUwMTg4NjEtYzZ1a2h0dWswYzl0c3RiaTdrM2lyNWJ1aG5rOWxtdnIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIzNzAzNTUwMTg4NjEtYzZ1a2h0dWswYzl0c3RiaTdrM2lyNWJ1aG5rOWxtdnIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDMwNzI5OTQ3ODU2MTQzMjc3MDEiLCJlbWFpbCI6Imh1YW5neXVhbjNoQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE3MTYzMDU5NzksIm5hbWUiOiLpu4TnvJjvvIhZdWFuIEh1YW5n77yJIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0xCa0RPRXY5N3Q0bUpCdUJRT3pSWmtFSktsWEtTazdzOWN1dVZxTUwxd2Z0MGdIZlphPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6Iue8mCIsImZhbWlseV9uYW1lIjoi6buEIiwiaWF0IjoxNzE2MzA2Mjc5LCJleHAiOjE3MTYzMDk4NzksImp0aSI6IjdjYWY2NWNjOTM4ZTAzY2RjNmU4NzAxMWNmMzZlYjllNTFiMjM1NjEifQ.McKSM6PMM1jIYbC9OGCmVGgEPk8uqXGFrsw3hlg1h2FBMOI2XjVnOcn52qt4l2qGeNnjowXaaOc4V4-A5xxFk5SCytvAe1Rx3StGIcDTx204AiDs1MzH9t6ap59yDkJgdr2E4xtXcg_Pvq7rBz4TpA7-Y2lEY435em1KLyKAKo3GQvB7kuCCvlb1jgnqVfTWONpAORdGtTIwRQaXAG1Yg3lyT18dnF1vKEV2XpfERUH3thTx2j69Dzj08d4thi52dZqZqDMMlgd2QPpbcT9Xq_YQhpBuf_4J3Io9th377TW05Ifd3RI82EknoKhuQo0ctbLZkjPvq7T1mGExxv6hXw"
+	input := events.APIGatewayV2HTTPRequest{
+		Body: "{\"credential\":\"" + credential + "\"}",
+	}
+
+	result, _ := handleGoogleLogin(input)
+	if result.StatusCode != http.StatusOK {
+		t.Errorf("Expected 200, got %d", result.StatusCode)
+	}
+}

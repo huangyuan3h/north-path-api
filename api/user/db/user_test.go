@@ -7,10 +7,13 @@ import (
 func TestCreateNew(t *testing.T) {
 
 	user := New()
-
 	email := "email1@example.com"
+	u := &User{
+		Email:    email,
+		UserName: GetEmailUsername(email),
+	}
 
-	err := user.CreateNew(&email)
+	err := user.CreateNew(u)
 
 	if err != nil {
 		t.Error(err)
