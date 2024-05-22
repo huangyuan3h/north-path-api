@@ -66,6 +66,11 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 	}
+
+	if u.Email == "" { // user Not found
+		return errors.New(errors.UserProfileNotFound, http.StatusInternalServerError).GatewayResponse()
+	}
+
 	jwtObj := map[string]interface{}{
 		"email":    loginReq.Email,
 		"avatar":   u.Avatar,
