@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"context"
@@ -73,24 +74,26 @@ func ExtractUserInfo(token string) (GoogleUserType, error) {
 	return userInfo, nil
 }
 
-func uploadToS3(ctx context.Context, url string, bucket string, key string) error {
-
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to load AWS config: %w", err)
-	}
-	client := s3.NewFromConfig(cfg)
-
+func downloadImage(ctx context.Context, url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Errorf("failed to download image: %w", err)
+		return nil, fmt.Errorf("failed to download image: %w", err)
 	}
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return fmt.Errorf("failed to read image data: %w", err)
+		return nil, fmt.Errorf("failed to read image data: %w", err)
 	}
+	return data, nil
+}
+
+func uploadToS3(ctx context.Context, data []byte, bucket string, key string) error {
+	cfg, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to load AWS config: %w", err)
+	}
+	client := s3.NewFromConfig(cfg)
 
 	_, format, err := image.DecodeConfig(bytes.NewReader(data))
 	if err != nil {
@@ -115,9 +118,10 @@ func uploadToS3(ctx context.Context, url string, bucket string, key string) erro
 	return nil
 }
 
-func handleGoogleLogin(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
+func handleGoogleLogin(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
+	wg := sync.WaitGroup{}
 
 	var loginReq GoogleLoginRequest
 	err := json.Unmarshal([]byte(request.Body), &loginReq)
@@ -140,10 +144,19 @@ func handleGoogleLogin(request events.APIGatewayV2HTTPRequest) (events.APIGatewa
 		bucketName := os.Getenv("NEXT_PUBLIC_BUCKET_NAME")
 		fileName := fmt.Sprintf("%s-%d%s", uuid.New(), time.Now().Unix(), filepath.Ext(userInfo.Picture))
 
-		err = uploadToS3(ctx, userInfo.Picture, bucketName, fileName)
+		data, err := downloadImage(ctx, userInfo.Picture)
 		if err != nil {
-			fmt.Println("Failed to upload image to S3:", err)
+			return errors.New(fmt.Sprintf("failed to download image: %s", err.Error()), http.StatusInternalServerError).GatewayResponse()
 		}
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err = uploadToS3(ctx, data, bucketName, fileName)
+			if err != nil {
+				fmt.Println("Failed to upload image to S3:", err)
+			}
+		}()
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("failed to upload image to S3: %s", err.Error()), http.StatusInternalServerError).GatewayResponse()
@@ -168,7 +181,7 @@ func handleGoogleLogin(request events.APIGatewayV2HTTPRequest) (events.APIGatewa
 	if err != nil {
 		return errors.New(err.Error(), http.StatusInternalServerError).GatewayResponse()
 	}
-
+	wg.Wait()
 	return awsHttp.Ok(LoginResponse{Authorization: jwtToken}, http.StatusOK)
 }
 
