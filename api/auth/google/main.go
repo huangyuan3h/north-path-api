@@ -4,17 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
 
 	"context"
-	"encoding/base64"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
-	"strings"
 
 	"path/filepath"
 
@@ -22,6 +21,7 @@ import (
 
 	user "api.north-path.site/user/db"
 	"api.north-path.site/utils/errors"
+	googleAuth "api.north-path.site/utils/googleAuth"
 	awsHttp "api.north-path.site/utils/http"
 	myJWT "api.north-path.site/utils/jwt"
 	"github.com/aws/aws-lambda-go/events"
@@ -41,39 +41,6 @@ type LoginResponse struct {
 	Authorization string `json:"Authorization"`
 }
 
-type GoogleUserType struct {
-	Email   string  `json:"email"`
-	Picture string  `json:"picture"`
-	Name    string  `json:"name"`
-	Exp     float64 `json:"exp"`
-}
-
-func ExtractUserInfo(token string) (GoogleUserType, error) {
-	parts := strings.Split(token, ".")
-	if len(parts) != 3 {
-		return GoogleUserType{}, fmt.Errorf("invalid token")
-	}
-
-	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
-	if err != nil {
-		return GoogleUserType{}, fmt.Errorf("error decoding payload: %w", err)
-	}
-
-	var userInfo GoogleUserType
-	err = json.Unmarshal(payload, &userInfo)
-	if err != nil {
-		return GoogleUserType{}, fmt.Errorf("error unmarshalling user info: %w", err)
-	}
-
-	exp := userInfo.Exp
-
-	if time.Now().Unix() > int64(exp) {
-		return GoogleUserType{}, fmt.Errorf("token expired")
-	}
-
-	return userInfo, nil
-}
-
 func downloadImage(ctx context.Context, url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
@@ -81,9 +48,15 @@ func downloadImage(ctx context.Context, url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	data, err := io.ReadAll(resp.Body)
+	limitedReader := io.LimitReader(resp.Body, 5*1024*1024) // limit only 5mb allowed
+
+	data, err := io.ReadAll(limitedReader)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read image data: %w", err)
+	}
+	// 检查是否读取了全部数据
+	if _, err := io.Copy(io.Discard, limitedReader); err != nil {
+		return nil, fmt.Errorf("image size exceeds 5MB limit")
 	}
 	return data, nil
 }
@@ -129,7 +102,9 @@ func handleGoogleLogin(request events.APIGatewayProxyRequest) (events.APIGateway
 		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
 	}
 
-	userInfo, err := ExtractUserInfo(loginReq.Credential)
+	// verify credential
+	userInfo, err := googleAuth.VerifyGoogleToken(ctx, loginReq.Credential)
+
 	if err != nil {
 		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
 	}
@@ -141,7 +116,7 @@ func handleGoogleLogin(request events.APIGatewayProxyRequest) (events.APIGateway
 	}
 
 	if u.Email == "" { // not found
-		bucketName := os.Getenv("NEXT_PUBLIC_BUCKET_NAME")
+		bucketName := os.Getenv("AVATAR_BUCKET_NAME")
 		fileName := fmt.Sprintf("%s-%d%s", uuid.New(), time.Now().Unix(), filepath.Ext(userInfo.Picture))
 
 		data, err := downloadImage(ctx, userInfo.Picture)
@@ -154,7 +129,7 @@ func handleGoogleLogin(request events.APIGatewayProxyRequest) (events.APIGateway
 			defer wg.Done()
 			err = uploadToS3(ctx, data, bucketName, fileName)
 			if err != nil {
-				fmt.Println("Failed to upload image to S3:", err)
+				log.Printf("Failed to upload image to S3: %v", err)
 			}
 		}()
 

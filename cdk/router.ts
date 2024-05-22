@@ -33,7 +33,8 @@ export default (stack:Stack)=>{
               handler:"./api/auth/google/main.go",
               timeout: 10,
               environment: { 
-                NEXT_PUBLIC_BUCKET_NAME: process.env.NEXT_PUBLIC_BUCKET_NAME ?? "",
+                AVATAR_BUCKET_NAME: process.env.AVATAR_BUCKET_NAME ?? "",
+                GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
                 JWT_SECRET: process.env.JWT_SECRET ?? ""
               },
             }
