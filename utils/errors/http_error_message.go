@@ -15,6 +15,7 @@ const (
 	AccountNotExist        = "account not exist"
 	PasswordDecryptedError = "password decrypt error"
 	PasswordIncorrect      = "password incorrect"
+	UserProfileNotFound    = "user profile not found"
 
 	// rcic error message
 	CreateHTTPRequestFailed   = "create HTTP request failed"

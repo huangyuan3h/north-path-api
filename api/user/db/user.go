@@ -20,7 +20,7 @@ type User struct {
 }
 
 type UserMethod interface {
-	CreateNew(email *string) error
+	CreateNew(user *User) error
 	FindByEmail(email *string) (*User, error)
 }
 
@@ -30,12 +30,7 @@ func New() UserMethod {
 	return User{client: &client}
 }
 
-func (u User) CreateNew(email *string) error {
-
-	user := &User{
-		Email:    *email,
-		UserName: getEmailUsername(*email),
-	}
+func (u User) CreateNew(user *User) error {
 
 	return u.client.CreateOrUpdate(user)
 }
@@ -60,7 +55,7 @@ func (u User) FindByEmail(email *string) (*User, error) {
 	return &u, nil
 }
 
-func getEmailUsername(email string) string {
+func GetEmailUsername(email string) string {
 	atIndex := strings.Index(email, "@")
 	if atIndex == -1 {
 		// "@" not found in the email
