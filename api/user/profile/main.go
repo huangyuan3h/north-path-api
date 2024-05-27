@@ -12,10 +12,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-type ProfileRequest struct {
-	Email string `json:"email"`
-}
-
 type ProfileResponse struct {
 	types.User
 }
