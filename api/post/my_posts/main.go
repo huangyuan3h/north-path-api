@@ -11,6 +11,7 @@ import (
 	"api.north-path.site/utils/jwt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/go-playground/validator/v10"
 )
 
 type MyPostsRequest struct {
@@ -39,6 +40,23 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 			return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 		}
 		myPostsReq.Email = claim.Email
+	}
+
+	// validate
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	errStruct := validate.Struct(myPostsReq)
+
+	if errStruct != nil {
+		firstErr := errStruct.(validator.ValidationErrors)[0]
+		var errMessage string
+		switch t := firstErr.StructField(); t {
+		case "Email":
+			errMessage = errors.NotValidEmail
+		case "Limit":
+			errMessage = errors.NotValidLimit
+		}
+
+		return errors.New(errMessage, http.StatusBadRequest).GatewayResponse()
 	}
 
 	db := db.New()

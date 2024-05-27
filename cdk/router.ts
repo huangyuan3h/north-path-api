@@ -78,6 +78,16 @@ export default (stack:Stack)=>{
               },
             }
           },
+          // my posts
+          "POST /my/posts": {
+            function: {
+              handler:"./api/post/my_posts/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
         },
       });
       return api;
