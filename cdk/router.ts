@@ -68,6 +68,16 @@ export default (stack:Stack)=>{
               timeout: 10,
             }
           },
+          // my profile
+          "GET /my/profile": {
+            function: {
+              handler:"./api/user/profile/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
         },
       });
       return api;

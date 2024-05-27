@@ -20,6 +20,7 @@ import (
 	"os"
 
 	user "api.north-path.site/user/db"
+	userTypes "api.north-path.site/user/types"
 	"api.north-path.site/utils/errors"
 	googleAuth "api.north-path.site/utils/googleAuth"
 	awsHttp "api.north-path.site/utils/http"
@@ -138,9 +139,11 @@ func handleGoogleLogin(request events.APIGatewayProxyRequest) (events.APIGateway
 		}
 
 		u = &user.User{
-			Email:    userInfo.Email,
-			UserName: userInfo.Name,
-			Avatar:   fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", bucketName, fileName),
+			User: userTypes.User{
+				Email:    userInfo.Email,
+				UserName: userInfo.Name,
+				Avatar:   fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", bucketName, fileName),
+			},
 		}
 		if err := userRepo.CreateNew(u); err != nil {
 			return errors.New("Failed to create user", http.StatusInternalServerError).GatewayResponse()
