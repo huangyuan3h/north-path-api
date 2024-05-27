@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"api.north-path.site/user/types"
 	db "api.north-path.site/utils/dynamodb"
 	errs "api.north-path.site/utils/errors"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -12,11 +13,8 @@ import (
 const tableName = "user"
 
 type User struct {
-	Email    string `json:"email" dynamodbav:"email"`
-	Avatar   string `json:"avatar" dynamodbav:"avatar"`
-	UserName string `json:"userName" dynamodbav:"userName"`
-	Bio      string `json:"bio" dynamodbav:"bio"`
-	client   *db.Client
+	types.User
+	client *db.Client
 }
 
 type UserMethod interface {
