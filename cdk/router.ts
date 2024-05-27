@@ -88,6 +88,16 @@ export default (stack:Stack)=>{
               },
             }
           },
+          // delete my post
+          "POST /my/post/delete": {
+            function: {
+              handler:"./api/post/delete/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
         },
       });
       return api;

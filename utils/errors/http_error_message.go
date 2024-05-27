@@ -30,4 +30,8 @@ const (
 
 	// search page message
 	NotValidLimit = "not valid Limit"
+
+	// delete post
+	OwnerNotMatch   = "owner not match"
+	InvalidImageUrl = "invalid image URL"
 )
