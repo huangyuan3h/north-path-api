@@ -18,7 +18,7 @@ type User struct {
 }
 
 type UserMethod interface {
-	CreateNew(user *User) error
+	CreateNew(user *types.User) error
 	FindByEmail(email *string) (*User, error)
 }
 
@@ -28,7 +28,7 @@ func New() UserMethod {
 	return User{client: &client}
 }
 
-func (u User) CreateNew(user *User) error {
+func (u User) CreateNew(user *types.User) error {
 
 	return u.client.CreateOrUpdate(user)
 }

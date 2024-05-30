@@ -94,7 +94,8 @@ export default (stack:Stack)=>{
               handler:"./api/post/delete/main.go",
               timeout: 10,
               environment: { 
-                JWT_SECRET: process.env.JWT_SECRET ?? ""
+                JWT_SECRET: process.env.JWT_SECRET ?? "",
+                POST_IMAGE_BUCKET_NAME: process.env.POST_IMAGE_BUCKET_NAME ?? ""
               },
             }
           },

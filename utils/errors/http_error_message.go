@@ -34,4 +34,8 @@ const (
 	// delete post
 	OwnerNotMatch   = "owner not match"
 	InvalidImageUrl = "invalid image URL"
+
+	//update profile
+
+	UseNameInvalid = "use name in invalid"
 )
