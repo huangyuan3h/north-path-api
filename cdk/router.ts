@@ -78,6 +78,15 @@ export default (stack:Stack)=>{
               },
             }
           },
+          "POST /my/profile": {
+            function: {
+              handler:"./api/user/update-profile/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
           // my posts
           "POST /my/posts": {
             function: {

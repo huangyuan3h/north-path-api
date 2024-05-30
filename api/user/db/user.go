@@ -19,7 +19,7 @@ type User struct {
 
 type UserMethod interface {
 	CreateNew(user *types.User) error
-	FindByEmail(email *string) (*User, error)
+	FindByEmail(email *string) (*types.User, error)
 }
 
 func New() UserMethod {
@@ -33,7 +33,7 @@ func (u User) CreateNew(user *types.User) error {
 	return u.client.CreateOrUpdate(user)
 }
 
-func (u User) FindByEmail(email *string) (*User, error) {
+func (u User) FindByEmail(email *string) (*types.User, error) {
 
 	item, err := u.client.FindById("email", *email)
 
@@ -41,7 +41,9 @@ func (u User) FindByEmail(email *string) (*User, error) {
 		return nil, err
 	}
 
-	err = attributevalue.UnmarshalMap(item, &u)
+	user := types.User{}
+
+	err = attributevalue.UnmarshalMap(item, &user)
 	if err != nil {
 		return nil, errors.New(errs.UnmarshalError)
 	}
@@ -50,7 +52,7 @@ func (u User) FindByEmail(email *string) (*User, error) {
 		return nil, err
 	}
 
-	return &u, nil
+	return &user, nil
 }
 
 func GetEmailUsername(email string) string {

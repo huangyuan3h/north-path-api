@@ -55,7 +55,7 @@ func downloadImage(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to read image data: %w", err)
 	}
-	// 检查是否读取了全部数据
+
 	if _, err := io.Copy(io.Discard, limitedReader); err != nil {
 		return nil, fmt.Errorf("image size exceeds 5MB limit")
 	}
@@ -138,13 +138,12 @@ func handleGoogleLogin(request events.APIGatewayProxyRequest) (events.APIGateway
 			return errors.New(fmt.Sprintf("failed to upload image to S3: %s", err.Error()), http.StatusInternalServerError).GatewayResponse()
 		}
 
-		u = &user.User{
-			User: userTypes.User{
-				Email:    userInfo.Email,
-				UserName: userInfo.Name,
-				Avatar:   fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", bucketName, fileName),
-			},
+		u = &userTypes.User{
+			Email:    userInfo.Email,
+			UserName: userInfo.Name,
+			Avatar:   fmt.Sprintf("https://%s.s3.us-east-1.amazonaws.com/%s", bucketName, fileName),
 		}
+
 		if err := userRepo.CreateNew(u); err != nil {
 			return errors.New("Failed to create user", http.StatusInternalServerError).GatewayResponse()
 		}
