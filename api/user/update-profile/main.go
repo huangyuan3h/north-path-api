@@ -23,7 +23,7 @@ type UpdateProfileBody struct {
 }
 
 type UpdateProfileResponse struct {
-	Message string `json:"message"`
+	Authorization string `json:"Authorization"`
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -79,8 +79,19 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
 	}
 
+	jwtObj := map[string]interface{}{
+		"email":    updateProfileReq.Email,
+		"avatar":   updateProfileReq.Avatar,
+		"userName": updateProfileReq.UserName,
+	}
+	jwt_token, err := jwt.CreateToken(jwtObj)
+
+	if err != nil {
+		return errors.New(err.Error(), http.StatusInternalServerError).GatewayResponse()
+	}
+
 	return awsHttp.Ok(&UpdateProfileResponse{
-		Message: "success",
+		Authorization: jwt_token,
 	}, http.StatusOK)
 }
 
