@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"api.north-path.site/user/types"
 	db "api.north-path.site/utils/dynamodb"
 	errs "api.north-path.site/utils/errors"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -12,16 +13,13 @@ import (
 const tableName = "user"
 
 type User struct {
-	Email    string `json:"email" dynamodbav:"email"`
-	Avatar   string `json:"avatar" dynamodbav:"avatar"`
-	UserName string `json:"userName" dynamodbav:"userName"`
-	Bio      string `json:"bio" dynamodbav:"bio"`
-	client   *db.Client
+	types.User
+	client *db.Client
 }
 
 type UserMethod interface {
-	CreateNew(user *User) error
-	FindByEmail(email *string) (*User, error)
+	CreateNew(user *types.User) error
+	FindByEmail(email *string) (*types.User, error)
 }
 
 func New() UserMethod {
@@ -30,12 +28,12 @@ func New() UserMethod {
 	return User{client: &client}
 }
 
-func (u User) CreateNew(user *User) error {
+func (u User) CreateNew(user *types.User) error {
 
 	return u.client.CreateOrUpdate(user)
 }
 
-func (u User) FindByEmail(email *string) (*User, error) {
+func (u User) FindByEmail(email *string) (*types.User, error) {
 
 	item, err := u.client.FindById("email", *email)
 
@@ -43,7 +41,9 @@ func (u User) FindByEmail(email *string) (*User, error) {
 		return nil, err
 	}
 
-	err = attributevalue.UnmarshalMap(item, &u)
+	user := types.User{}
+
+	err = attributevalue.UnmarshalMap(item, &user)
 	if err != nil {
 		return nil, errors.New(errs.UnmarshalError)
 	}
@@ -52,7 +52,7 @@ func (u User) FindByEmail(email *string) (*User, error) {
 		return nil, err
 	}
 
-	return &u, nil
+	return &user, nil
 }
 
 func GetEmailUsername(email string) string {

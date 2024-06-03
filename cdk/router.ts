@@ -68,6 +68,46 @@ export default (stack:Stack)=>{
               timeout: 10,
             }
           },
+          // my profile
+          "GET /my/profile": {
+            function: {
+              handler:"./api/user/profile/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
+          "POST /my/profile": {
+            function: {
+              handler:"./api/user/update-profile/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
+          // my posts
+          "POST /my/posts": {
+            function: {
+              handler:"./api/post/my_posts/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? ""
+              },
+            }
+          },
+          // delete my post
+          "POST /my/post/delete": {
+            function: {
+              handler:"./api/post/delete/main.go",
+              timeout: 10,
+              environment: { 
+                JWT_SECRET: process.env.JWT_SECRET ?? "",
+                POST_IMAGE_BUCKET_NAME: process.env.POST_IMAGE_BUCKET_NAME ?? ""
+              },
+            }
+          },
         },
       });
       return api;

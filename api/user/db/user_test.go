@@ -2,15 +2,19 @@ package db
 
 import (
 	"testing"
+
+	"api.north-path.site/user/types"
 )
 
 func TestCreateNew(t *testing.T) {
 
 	user := New()
-	email := "email1@example.com"
+	email := "email2@example.com"
 	u := &User{
-		Email:    email,
-		UserName: GetEmailUsername(email),
+		User: types.User{
+			Email:    email,
+			UserName: GetEmailUsername(email),
+		},
 	}
 
 	err := user.CreateNew(u)
@@ -23,7 +27,7 @@ func TestCreateNew(t *testing.T) {
 func TestFindByEmail(t *testing.T) {
 	user := New()
 
-	email := "email1@example.com"
+	email := "email2@example.com"
 
 	res, err := user.FindByEmail(&email)
 

@@ -8,6 +8,7 @@ import (
 
 	"api.north-path.site/auth/db/auth"
 	user "api.north-path.site/user/db"
+	userTypes "api.north-path.site/user/types"
 	"api.north-path.site/utils/errors"
 	awsHttp "api.north-path.site/utils/http"
 	"github.com/aws/aws-lambda-go/events"
@@ -69,7 +70,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
 	}
 
-	u := user.User{
+	u := userTypes.User{
 		Email:    acocuntReq.Email,
 		UserName: user.GetEmailUsername(acocuntReq.Email),
 	}

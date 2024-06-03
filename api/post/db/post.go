@@ -28,6 +28,7 @@ type PostMethod interface {
 	FindById(id string) (*types.Post, error)
 	DeleteById(id string) error
 	Search(limit int32, currentId string, category string) ([]types.Post, *string, error)
+	FindByEmail(limit int32, currentId string, email string) ([]types.Post, *string, error)
 }
 
 func New() PostMethod {
@@ -133,5 +134,44 @@ func (p Post) Search(limit int32, currentId string, category string) ([]types.Po
 		return nil, nil, err
 	}
 
+	return posts, nextToken, nil
+}
+
+func (p Post) FindByEmail(limit int32, currentId string, email string) ([]types.Post, *string, error) {
+	statement := fmt.Sprintf("SELECT * FROM \"%v\".\"myPost\" where email = ? order by updatedDate desc", *p.client.TableName)
+
+	emptyStr := ""
+
+	input := &dynamodb.ExecuteStatementInput{
+		Statement: aws.String(statement),
+		Limit:     aws.Int32(limit),
+	}
+
+	if currentId != "" {
+		input.NextToken = aws.String(currentId)
+	}
+
+	params, err := attributevalue.MarshalList([]interface{}{email})
+
+	if err != nil {
+		return nil, &emptyStr, err
+	}
+	input.Parameters = params
+	response, err := p.client.ExecuteStatement(input)
+
+	if err != nil {
+		return nil, &emptyStr, err
+	}
+
+	var posts []types.Post
+	err = attributevalue.UnmarshalListOfMaps(response.Items, &posts)
+	nextToken := response.NextToken
+	if err != nil {
+		return nil, &emptyStr, err
+	}
+
+	if response.NextToken == nil {
+		return posts, &emptyStr, nil
+	}
 	return posts, nextToken, nil
 }
