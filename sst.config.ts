@@ -4,7 +4,7 @@ import { getTableConfig } from "./cdk/table";
 import {  Bucket,  } from 'sst/constructs';
 import * as s3 from "aws-cdk-lib/aws-s3";
 
-const bucketArn = "arn:aws:s3:::dev-north-path-site-publicbucket5c3dbab0-e3wdaigzrpyo";
+const bucketArn = "arn:aws:s3:::"+process.env.POST_IMAGE_BUCKET_NAME;
 
 export default {
   config(_input) {

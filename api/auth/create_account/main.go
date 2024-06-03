@@ -70,11 +70,9 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		return errors.New(errors.InsertDBError, http.StatusBadRequest).GatewayResponse()
 	}
 
-	u := user.User{
-		User: userTypes.User{
-			Email:    acocuntReq.Email,
-			UserName: user.GetEmailUsername(acocuntReq.Email),
-		},
+	u := userTypes.User{
+		Email:    acocuntReq.Email,
+		UserName: user.GetEmailUsername(acocuntReq.Email),
 	}
 
 	err = userClient.CreateNew(&u)
