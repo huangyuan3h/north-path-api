@@ -20,7 +20,7 @@ import (
 )
 
 type DeletePostRequest struct {
-	PostId string `json:"post_id"`
+	PostIds []string `json:"post_ids"`
 }
 
 type DeletePostResponse struct {
@@ -74,6 +74,8 @@ func deleteImage(images []string) error {
 	return nil
 }
 
+// todo: optimize to batch operations
+
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
 
 	deleteReq := &DeletePostRequest{}
@@ -92,27 +94,28 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	db := db.New()
 
-	post, err := db.FindById(deleteReq.PostId)
+	for _, pid := range deleteReq.PostIds {
 
-	if err != nil {
-		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
-	}
+		post, err := db.FindById(pid)
 
-	// make sure the owner is the current user
-	if post.Email != email {
-		return errors.New(errors.OwnerNotMatch, http.StatusBadRequest).GatewayResponse()
-	}
+		if err != nil {
+			return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
+		}
 
-	// delete the image from s3
-	err = deleteImage(post.Images)
-	if err != nil {
-		return errors.New(err.Error(), http.StatusInternalServerError).GatewayResponse()
-	}
+		// make sure the owner is the current user
+		if post.Email != email {
+			return errors.New(errors.OwnerNotMatch, http.StatusBadRequest).GatewayResponse()
+		}
+		// delete the image from s3
+		err = deleteImage(post.Images)
+		if err != nil {
+			return errors.New(err.Error(), http.StatusInternalServerError).GatewayResponse()
+		}
 
-	err = db.DeleteById(deleteReq.PostId)
-
-	if err != nil {
-		return errors.New(err.Error(), http.StatusInternalServerError).GatewayResponse()
+		err = db.DeleteById(pid)
+		if err != nil {
+			return errors.New(err.Error(), http.StatusInternalServerError).GatewayResponse()
+		}
 	}
 
 	return awsHttp.Ok(&DeletePostResponse{
