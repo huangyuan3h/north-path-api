@@ -15,7 +15,7 @@ import (
 )
 
 type SearchPostBody struct {
-	Limit     int32  `json:"limit" validate:"required,max=1000"`
+	Limit     int32  `json:"limit" validate:"required,max=5000"`
 	NextToken string `json:"next_token"`
 	Category  string `json:"category"`
 }
