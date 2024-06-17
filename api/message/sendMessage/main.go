@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -10,6 +11,10 @@ import (
 	awsHttp "api.north-path.site/utils/http"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ses"
+	t "github.com/aws/aws-sdk-go-v2/service/ses/types"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -22,6 +27,39 @@ type SendMessageBody struct {
 
 type ContactAdminResponse struct {
 	Message string `json:"message"`
+}
+
+func sendEmailWithSES(data SendMessageBody) error {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		return err
+	}
+
+	client := ses.NewFromConfig(cfg)
+
+	input := &ses.SendEmailInput{
+		Destination: &t.Destination{
+			ToAddresses: []string{
+				data.ToEmail,
+			},
+		},
+		Message: &t.Message{
+			Body: &t.Body{
+				Html: &t.Content{
+					Charset: aws.String("UTF-8"),
+					Data:    aws.String(data.Content),
+				},
+			},
+			Subject: &t.Content{
+				Charset: aws.String("UTF-8"),
+				Data:    aws.String(data.Subject),
+			},
+		},
+		Source: aws.String(data.FromEmail),
+	}
+
+	_, err = client.SendEmail(context.TODO(), input)
+	return err
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -60,6 +98,12 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		Subject:   sendMessageBody.Subject,
 		Content:   sendMessageBody.Content,
 	})
+
+	err = sendEmailWithSES(sendMessageBody)
+
+	if err != nil {
+		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
+	}
 
 	return awsHttp.Ok(&ContactAdminResponse{
 		Message: "ok",
