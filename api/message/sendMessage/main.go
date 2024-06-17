@@ -29,6 +29,8 @@ type ContactAdminResponse struct {
 	Message string `json:"message"`
 }
 
+const DEFAULT_EMAIL = "huangyuan3h@gmail.com"
+
 func sendEmailWithSES(data SendMessageBody) error {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -55,7 +57,7 @@ func sendEmailWithSES(data SendMessageBody) error {
 				Data:    aws.String(data.Subject),
 			},
 		},
-		Source: aws.String(data.FromEmail),
+		Source: aws.String(DEFAULT_EMAIL),
 	}
 
 	_, err = client.SendEmail(context.TODO(), input)
@@ -68,6 +70,9 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	if err != nil {
 		return errors.New(errors.JSONParseError, http.StatusBadRequest).GatewayResponse()
+	}
+	if sendMessageBody.ToEmail == "" {
+		sendMessageBody.ToEmail = DEFAULT_EMAIL
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
@@ -98,6 +103,8 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 		Subject:   sendMessageBody.Subject,
 		Content:   sendMessageBody.Content,
 	})
+
+	sendMessageBody.Content = sendMessageBody.Content + "<br/> <br/> 消息来自：" + sendMessageBody.FromEmail
 
 	err = sendEmailWithSES(sendMessageBody)
 
