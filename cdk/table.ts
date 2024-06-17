@@ -43,7 +43,12 @@ export const getTableConfig = (stack: Stack) =>{
         "location": { partitionKey: "location", sortKey: "sortingScore" }, }
       });
 
+      const messageTable = new Table(stack, "message", {
+        fields: {
+          id: "string",
+        },
+        primaryIndex: { partitionKey: "id" },
+      });
 
-
-      return {authTable, userTable, postTable}
+      return {authTable, userTable, postTable, messageTable}
 }

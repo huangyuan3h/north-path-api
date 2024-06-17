@@ -38,4 +38,8 @@ const (
 	//update profile
 
 	UseNameInvalid = "use name in invalid"
+
+	// message module
+	SubjectInvalid = "subject in invalid"
+	ContentInvalid = "content in invalid"
 )

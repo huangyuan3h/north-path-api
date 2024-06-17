@@ -108,6 +108,13 @@ export default (stack:Stack)=>{
               },
             }
           },
+          // send message
+          "POST /message/send": {
+            function: {
+              handler:"./api/message/sendMessage/main.go",
+              timeout: 10,
+            }
+          },
         },
       });
       return api;

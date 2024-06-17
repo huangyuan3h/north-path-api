@@ -20,11 +20,11 @@ export default {
     
     app.stack(function Stack({ stack }) {
 
-      const {authTable, userTable, postTable} = getTableConfig(stack);
+      const {authTable, userTable, postTable, messageTable} = getTableConfig(stack);
 
       const api = getApi(stack);
 
-      api.attachPermissions([authTable, userTable, postTable]);
+      api.attachPermissions([authTable, userTable, postTable, messageTable]);
       const bucket = new Bucket(stack, 'avatar');
       const bucketImage = new Bucket(stack, "Bucket", {
         cdk: {
