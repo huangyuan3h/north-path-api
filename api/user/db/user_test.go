@@ -10,11 +10,9 @@ func TestCreateNew(t *testing.T) {
 
 	user := New()
 	email := "email2@example.com"
-	u := &User{
-		User: types.User{
-			Email:    email,
-			UserName: GetEmailUsername(email),
-		},
+	u := &types.User{
+		Email:    email,
+		UserName: GetEmailUsername(email),
 	}
 
 	err := user.CreateNew(u)
