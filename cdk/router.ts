@@ -113,6 +113,9 @@ export default (stack:Stack)=>{
             function: {
               handler:"./api/message/sendMessage/main.go",
               timeout: 10,
+              environment: { 
+                EmailToken: process.env.EmailToken ?? ""
+              },
             }
           },
         },

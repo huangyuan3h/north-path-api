@@ -7,14 +7,14 @@ replace api.north-path.site/utils => ../../utils
 require (
 	api.north-path.site/utils v0.0.0-00010101000000-000000000000
 	github.com/aws/aws-lambda-go v1.47.0
-	github.com/aws/aws-sdk-go-v2 v1.27.2
-	github.com/aws/aws-sdk-go-v2/config v1.27.12
-	github.com/aws/aws-sdk-go-v2/service/ses v1.22.11
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/oklog/ulid v1.3.1
+	github.com/resend/resend-go/v2 v2.10.0
 )
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.27.2 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.27.12 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.17.12 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.15 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.1 // indirect
