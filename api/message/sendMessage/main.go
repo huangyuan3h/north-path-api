@@ -1,9 +1,10 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
+
+	"os"
 
 	"api.north-path.site/message/db"
 	"api.north-path.site/message/types"
@@ -11,11 +12,8 @@ import (
 	awsHttp "api.north-path.site/utils/http"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/ses"
-	t "github.com/aws/aws-sdk-go-v2/service/ses/types"
 	"github.com/go-playground/validator/v10"
+	"github.com/resend/resend-go/v2"
 )
 
 type SendMessageBody struct {
@@ -32,35 +30,20 @@ type ContactAdminResponse struct {
 const DEFAULT_EMAIL = "huangyuan3h@gmail.com"
 
 func sendEmailWithSES(data SendMessageBody) error {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return err
+
+	apiKey := os.Getenv("EmailToken")
+
+	client := resend.NewClient(apiKey)
+
+	params := &resend.SendEmailRequest{
+		From:    "admin@north-path.site",
+		To:      []string{data.ToEmail, "admin@north-path.site"},
+		Subject: data.Subject,
+		Html:    data.Content,
 	}
 
-	client := ses.NewFromConfig(cfg)
+	_, err := client.Emails.Send(params)
 
-	input := &ses.SendEmailInput{
-		Destination: &t.Destination{
-			ToAddresses: []string{
-				data.ToEmail,
-			},
-		},
-		Message: &t.Message{
-			Body: &t.Body{
-				Html: &t.Content{
-					Charset: aws.String("UTF-8"),
-					Data:    aws.String(data.Content),
-				},
-			},
-			Subject: &t.Content{
-				Charset: aws.String("UTF-8"),
-				Data:    aws.String(data.Subject),
-			},
-		},
-		Source: aws.String(DEFAULT_EMAIL),
-	}
-
-	_, err = client.SendEmail(context.TODO(), input)
 	return err
 }
 
