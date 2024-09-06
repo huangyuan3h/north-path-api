@@ -1,9 +1,9 @@
-module api.north-path.site/auth/db
+module north-path.it-t.xyz/auth/db
 
 go 1.22.0
 
 require (
-	api.north-path.site/utils v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/utils v0.0.0-00010101000000-000000000000
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.15
 )
 
@@ -28,4 +28,4 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 )
 
-replace api.north-path.site/utils => ../../../utils
+replace north-path.it-t.xyz/utils => ../../../utils

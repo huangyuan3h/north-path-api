@@ -1,11 +1,11 @@
-module api.north-path.site/message
+module north-path.it-t.xyz/message
 
 go 1.22.0
 
-replace api.north-path.site/utils => ../../utils
+replace north-path.it-t.xyz/utils => ../../utils
 
 require (
-	api.north-path.site/utils v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/utils v0.0.0-00010101000000-000000000000
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/oklog/ulid v1.3.1

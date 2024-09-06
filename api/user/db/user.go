@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strings"
 
-	"api.north-path.site/user/types"
-	db "api.north-path.site/utils/dynamodb"
-	errs "api.north-path.site/utils/errors"
+	"north-path.it-t.xyz/user/types"
+	db "north-path.it-t.xyz/utils/dynamodb"
+	errs "north-path.it-t.xyz/utils/errors"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 )
 

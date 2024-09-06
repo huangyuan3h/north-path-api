@@ -4,8 +4,8 @@ import (
 	"crypto/rand"
 	"time"
 
-	"api.north-path.site/message/types"
-	db "api.north-path.site/utils/dynamodb"
+	"north-path.it-t.xyz/message/types"
+	db "north-path.it-t.xyz/utils/dynamodb"
 	"github.com/oklog/ulid"
 )
 

@@ -5,11 +5,11 @@ import (
 
 	"time"
 
-	db "api.north-path.site/utils/dynamodb"
+	db "north-path.it-t.xyz/utils/dynamodb"
 
 	"fmt"
 
-	types "api.north-path.site/post/types"
+	types "north-path.it-t.xyz/post/types"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"

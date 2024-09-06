@@ -5,10 +5,10 @@ import (
 
 	"encoding/json"
 
-	"api.north-path.site/post/db"
-	"api.north-path.site/utils/errors"
-	awsHttp "api.north-path.site/utils/http"
-	"api.north-path.site/utils/jwt"
+	"north-path.it-t.xyz/post/db"
+	"north-path.it-t.xyz/utils/errors"
+	awsHttp "north-path.it-t.xyz/utils/http"
+	"north-path.it-t.xyz/utils/jwt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-playground/validator/v10"

@@ -5,7 +5,7 @@ import (
 
 	"net/http"
 
-	"api.north-path.site/utils/errors"
+	"north-path.it-t.xyz/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
 )
 

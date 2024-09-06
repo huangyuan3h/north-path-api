@@ -7,7 +7,7 @@ import (
 
 	"os"
 
-	errors "api.north-path.site/utils/errors"
+	errors "north-path.it-t.xyz/utils/errors"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/google/go-cmp/cmp"
 )

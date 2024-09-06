@@ -1,4 +1,4 @@
-module api.north-path.site/test
+module north-path.it-t.xyz/test
 
 go 1.22.0
 

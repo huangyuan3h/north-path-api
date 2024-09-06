@@ -1,11 +1,11 @@
-module api.north-path.site/controller/auth/create_account
+module north-path.it-t.xyz/controller/auth/create_account
 
 go 1.22.0
 
 require github.com/aws/aws-lambda-go v1.46.0
 
 require (
-	api.north-path.site/utils v1.0.0
+	north-path.it-t.xyz/utils v1.0.0
 	github.com/go-playground/validator/v10 v10.19.0
 )
 
@@ -20,4 +20,4 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 )
 
-replace api.north-path.site/utils => ../../../utils
+replace north-path.it-t.xyz/utils => ../../../utils

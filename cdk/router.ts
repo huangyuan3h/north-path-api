@@ -5,7 +5,7 @@ export default (stack:Stack)=>{
    
     const api = new Api(stack, "api", {
         cors: {
-            allowOrigins: ["https://www.north-path.site","http://localhost:3000"],
+            allowOrigins: ["https://www.north-path.site","http://localhost:3000", "https://north-path.it-t.xyz"],
             allowCredentials: true,
             allowHeaders: ["Authorization"],
           },

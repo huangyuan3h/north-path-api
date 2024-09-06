@@ -6,10 +6,10 @@ import (
 
 	"os"
 
-	"api.north-path.site/message/db"
-	"api.north-path.site/message/types"
-	"api.north-path.site/utils/errors"
-	awsHttp "api.north-path.site/utils/http"
+	"north-path.it-t.xyz/message/db"
+	"north-path.it-t.xyz/message/types"
+	"north-path.it-t.xyz/utils/errors"
+	awsHttp "north-path.it-t.xyz/utils/http"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-playground/validator/v10"

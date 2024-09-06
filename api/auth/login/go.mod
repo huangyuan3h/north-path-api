@@ -1,9 +1,9 @@
-module api.north-path.site/controller/auth/login
+module north-path.it-t.xyz/controller/auth/login
 
 go 1.22.0
 
 require github.com/aws/aws-lambda-go v1.46.0
 
-require api.north-path.site/utils v1.0.0
+require north-path.it-t.xyz/utils v1.0.0
 
-replace api.north-path.site/utils => ../../../utils
+replace north-path.it-t.xyz/utils => ../../../utils

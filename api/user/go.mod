@@ -1,11 +1,11 @@
-module api.north-path.site/user
+module north-path.it-t.xyz/user
 
 go 1.22.0
 
-replace api.north-path.site/utils => ../../utils
+replace north-path.it-t.xyz/utils => ../../utils
 
 require (
-	api.north-path.site/utils v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/utils v0.0.0-00010101000000-000000000000
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.15
 )
 

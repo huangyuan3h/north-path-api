@@ -1,9 +1,9 @@
-module api.north-path.site/post
+module north-path.it-t.xyz/post
 
 go 1.22.0
 
 require (
-	api.north-path.site/utils v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/utils v0.0.0-00010101000000-000000000000
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.26.1
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.15
@@ -40,4 +40,4 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 )
 
-replace api.north-path.site/utils => ../../utils
+replace north-path.it-t.xyz/utils => ../../utils

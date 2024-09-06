@@ -1,4 +1,4 @@
-module api.north-path.site/utils
+module north-path.it-t.xyz/utils
 
 go 1.22.0
 

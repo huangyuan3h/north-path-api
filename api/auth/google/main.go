@@ -19,12 +19,12 @@ import (
 
 	"os"
 
-	user "api.north-path.site/user/db"
-	userTypes "api.north-path.site/user/types"
-	"api.north-path.site/utils/errors"
-	googleAuth "api.north-path.site/utils/googleAuth"
-	awsHttp "api.north-path.site/utils/http"
-	myJWT "api.north-path.site/utils/jwt"
+	user "north-path.it-t.xyz/user/db"
+	userTypes "north-path.it-t.xyz/user/types"
+	"north-path.it-t.xyz/utils/errors"
+	googleAuth "north-path.it-t.xyz/utils/googleAuth"
+	awsHttp "north-path.it-t.xyz/utils/http"
+	myJWT "north-path.it-t.xyz/utils/jwt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"

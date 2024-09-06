@@ -1,14 +1,14 @@
-module api.north-path.site/post/view
+module north-path.it-t.xyz/post/view
 
 go 1.22.0
 
-replace api.north-path.site/utils => ../../../utils
+replace north-path.it-t.xyz/utils => ../../../utils
 
-replace api.north-path.site/post => ../.
+replace north-path.it-t.xyz/post => ../.
 
 require (
-	api.north-path.site/post v0.0.0-00010101000000-000000000000
-	api.north-path.site/utils v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/post v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/utils v0.0.0-00010101000000-000000000000
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/go-playground/validator/v10 v10.20.0
 )

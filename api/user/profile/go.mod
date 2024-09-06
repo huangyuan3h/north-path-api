@@ -1,14 +1,14 @@
-module api.north-path.site/user/profile
+module north-path.it-t.xyz/user/profile
 
 go 1.22.0
 
-replace api.north-path.site/utils => ../../../utils
+replace north-path.it-t.xyz/utils => ../../../utils
 
-replace api.north-path.site/user => ../.
+replace north-path.it-t.xyz/user => ../.
 
 require (
-	api.north-path.site/user v0.0.0-00010101000000-000000000000
-	api.north-path.site/utils v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/user v0.0.0-00010101000000-000000000000
+	north-path.it-t.xyz/utils v0.0.0-00010101000000-000000000000
 	github.com/aws/aws-lambda-go v1.47.0
 )
 

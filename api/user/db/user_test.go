@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 
-	"api.north-path.site/user/types"
+	"north-path.it-t.xyz/user/types"
 )
 
 func TestCreateNew(t *testing.T) {
