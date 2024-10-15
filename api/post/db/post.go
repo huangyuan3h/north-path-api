@@ -9,11 +9,11 @@ import (
 
 	"fmt"
 
-	types "north-path.it-t.xyz/post/types"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/oklog/ulid"
+	types "north-path.it-t.xyz/post/types"
 )
 
 const tableName = "posts"
@@ -24,7 +24,7 @@ type Post struct {
 }
 
 type PostMethod interface {
-	CreateNew(email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error)
+	CreateOrUpdate(pid, email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error)
 	FindById(id string) (*types.Post, error)
 	DeleteById(id string) error
 	Search(limit int32, currentId string, category string) ([]types.Post, *string, error)
@@ -37,14 +37,20 @@ func New() PostMethod {
 	return Post{client: &client}
 }
 
-func (p Post) CreateNew(email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error) {
+func (p Post) CreateOrUpdate(pid, email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error) {
 	t := time.Now()
 	entropy := ulid.Monotonic(rand.Reader, 0)
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
+
+	postId := id.String()
+	if pid != nil && *pid != "" {
+		postId = *pid
+	}
+
 	timestamp_ms := int64(time.Now().UnixNano() / int64(time.Millisecond))
 	post :=
 		&types.Post{
-			PostId:       id.String(),
+			PostId:       postId,
 			Email:        *email,
 			Subject:      *subject,
 			Content:      *content,

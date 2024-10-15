@@ -5,16 +5,17 @@ import (
 
 	"encoding/json"
 
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/go-playground/validator/v10"
 	"north-path.it-t.xyz/post/db"
 	"north-path.it-t.xyz/utils/errors"
 	awsHttp "north-path.it-t.xyz/utils/http"
 	"north-path.it-t.xyz/utils/jwt"
-	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/go-playground/validator/v10"
 )
 
 type CreatePostBody struct {
+	Id       string   `json:"postId"`
 	Subject  string   `json:"subject" validate:"required,min=6,max=50"`
 	Content  string   `json:"content"  validate:"max=5000"`
 	Category string   `json:"category" validate:"required"`
@@ -57,13 +58,14 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()
+
 	}
 
 	// save to db
 
 	db_client := db.New()
 
-	post, err := db_client.CreateNew(&claim.Email, &createPostReq.Subject, &createPostReq.Content, &createPostReq.Category, &createPostReq.Location, &createPostReq.Images, &createPostReq.Topics)
+	post, err := db_client.CreateOrUpdate(&createPostReq.Id, &claim.Email, &createPostReq.Subject, &createPostReq.Content, &createPostReq.Category, &createPostReq.Location, &createPostReq.Images, &createPostReq.Topics)
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()

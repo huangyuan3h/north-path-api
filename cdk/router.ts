@@ -47,7 +47,7 @@ export default (stack:Stack)=>{
             }
           },
           // posts related part
-          "POST /post/create": {
+          "POST /post/createOrUpdate": {
             function: {
               handler:"./api/post/create/main.go",
               timeout: 10,
