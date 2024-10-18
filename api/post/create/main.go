@@ -22,6 +22,8 @@ type CreatePostBody struct {
 	Location string   `json:"location"`
 	Topics   []string `json:"topics"`
 	Images   []string `json:"images"  validate:"required"`
+	Bilibili string   `json:"bilibili"`
+	Youtube  string   `json:"youtube"`
 }
 
 func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
@@ -65,7 +67,7 @@ func Handler(request events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResp
 
 	db_client := db.New()
 
-	post, err := db_client.CreateOrUpdate(&createPostReq.Id, &claim.Email, &createPostReq.Subject, &createPostReq.Content, &createPostReq.Category, &createPostReq.Location, &createPostReq.Images, &createPostReq.Topics)
+	post, err := db_client.CreateOrUpdate(&createPostReq.Id, &claim.Email, &createPostReq.Subject, &createPostReq.Content, &createPostReq.Category, &createPostReq.Location, &createPostReq.Bilibili, &createPostReq.Youtube, &createPostReq.Images, &createPostReq.Topics)
 
 	if err != nil {
 		return errors.New(err.Error(), http.StatusBadRequest).GatewayResponse()

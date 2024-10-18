@@ -24,7 +24,7 @@ type Post struct {
 }
 
 type PostMethod interface {
-	CreateOrUpdate(pid, email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error)
+	CreateOrUpdate(pid, email, subject, content, category, location, bilibili, youtube *string, images, topics *[]string) (*types.Post, error)
 	FindById(id string) (*types.Post, error)
 	DeleteById(id string) error
 	Search(limit int32, currentId string, category string) ([]types.Post, *string, error)
@@ -37,7 +37,7 @@ func New() PostMethod {
 	return Post{client: &client}
 }
 
-func (p Post) CreateOrUpdate(pid, email, subject, content, category, location *string, images, topics *[]string) (*types.Post, error) {
+func (p Post) CreateOrUpdate(pid, email, subject, content, category, location, bilibili, youtube *string, images, topics *[]string) (*types.Post, error) {
 	t := time.Now()
 	entropy := ulid.Monotonic(rand.Reader, 0)
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
@@ -58,6 +58,8 @@ func (p Post) CreateOrUpdate(pid, email, subject, content, category, location *s
 			Category:     *category,
 			Location:     *location,
 			Images:       *images,
+			Bilibili:     *bilibili,
+			Youtube:      *youtube,
 			UpdatedDate:  time.Now().Format(time.RFC3339),
 			Like:         0,
 			SortingScore: timestamp_ms,

@@ -7,6 +7,8 @@ type Post struct {
 	Content      string   `json:"content" dynamodbav:"content"`
 	Category     string   `json:"category" dynamodbav:"category"`
 	Location     string   `json:"location" dynamodbav:"location"`
+	Bilibili     string   `json:"bilibili" dynamodbav:"bilibili"`
+	Youtube      string   `json:"youtube" dynamodbav:"youtube"`
 	Topics       []string `json:"topics" dynamodbav:"topics"`
 	Images       []string `json:"images" dynamodbav:"images"`
 	UpdatedDate  string   `json:"updatedDate" dynamodbav:"updatedDate"`
