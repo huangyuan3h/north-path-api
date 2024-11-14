@@ -39,13 +39,13 @@ export default (stack:Stack)=>{
               },
             }
           },
-          // rcic part
-          "POST /rcic/search": {
-            function: {
-              handler:"./api/rcic/search/main.go",
-              timeout: 10,
-            }
-          },
+          // // rcic part deprecated
+          // "POST /rcic/search": {
+          //   function: {
+          //     handler:"./api/rcic/search/main.go",
+          //     timeout: 10,
+          //   }
+          // },
           // posts related part
           "POST /post/createOrUpdate": {
             function: {
